@@ -1,0 +1,71 @@
+/* Custom styles to complement Bootstrap */
+
+/* Light mode background */
+body[data-bs-theme="light"] {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Dark mode background */
+body[data-bs-theme="dark"] {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+}
+
+/* Default (nếu không có theme) */
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+/* Smooth transitions */
+.card, .list-group-item, .btn {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}
+
+body[data-bs-theme="dark"] .card:hover {
+  box-shadow: 0 4px 20px rgba(255,255,255,0.1) !important;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+body[data-bs-theme="dark"] .list-group-item:hover {
+  background-color: #2c2c2c;
+}
+
+/* Loading spinner */
+.spinner-border {
+  margin: 20px auto;
+  display: block;
+}
+
+/* Custom badge colors */
+.badge {
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+  }
+}
