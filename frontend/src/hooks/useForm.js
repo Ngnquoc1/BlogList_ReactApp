@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 /**
  * Custom hook for form input with validation
@@ -6,16 +6,16 @@ import { useState } from 'react'
  * @param {string} initialValue - Initial value for the input
  * @returns {object} - { value, type, onChange, reset, ...inputProps }
  */
-export const useField = (type, initialValue = '') => {
-  const [value, setValue] = useState(initialValue)
+export const useField = (type, initialValue = "") => {
+  const [value, setValue] = useState(initialValue);
 
   const onChange = (event) => {
-    setValue(event.target.value)
-  }
+    setValue(event.target.value);
+  };
 
   const reset = () => {
-    setValue(initialValue)
-  }
+    setValue(initialValue);
+  };
 
   // Return object với inputProps để spread vào input
   return {
@@ -26,10 +26,10 @@ export const useField = (type, initialValue = '') => {
     inputProps: {
       type,
       value,
-      onChange
-    }
-  }
-}
+      onChange,
+    },
+  };
+};
 
 /**
  * Custom hook for managing form state
@@ -37,20 +37,20 @@ export const useField = (type, initialValue = '') => {
  * @returns {object} - Form management functions
  */
 export const useForm = (initialValues = {}) => {
-  const [values, setValues] = useState(initialValues)
+  const [values, setValues] = useState(initialValues);
 
   const handleChange = (event) => {
-    const { name, value } = event.target
-    setValues(prev => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = event.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
 
   const resetForm = () => {
-    setValues(initialValues)
-  }
+    setValues(initialValues);
+  };
 
   const setFieldValue = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }))
-  }
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
 
   // Tạo fields object với inputProps cho mỗi field
   const fields = Object.keys(initialValues).reduce((acc, key) => {
@@ -58,10 +58,10 @@ export const useForm = (initialValues = {}) => {
       name: key,
       value: values[key],
       onChange: handleChange,
-      ...values[key]
-    }
-    return acc
-  }, {})
+      ...values[key],
+    };
+    return acc;
+  }, {});
 
   return {
     values,
@@ -69,6 +69,6 @@ export const useForm = (initialValues = {}) => {
     handleChange,
     resetForm,
     setFieldValue,
-    setValues
-  }
-}
+    setValues,
+  };
+};

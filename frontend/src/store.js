@@ -1,10 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from "@reduxjs/toolkit";
 
 
-import BlogReducer from './reducers/blogReducer'
-import NotiReducer from './reducers/notiReducer'
-import LoginUserReducer from './reducers/loginUserReducer'
-import UsersReducer from './reducers/usersReducer'
+import BlogReducer from "./reducers/blogReducer";
+import NotiReducer from "./reducers/notiReducer";
+import LoginUserReducer from "./reducers/loginUserReducer";
+import UsersReducer from "./reducers/usersReducer";
 
 const store = configureStore({
   reducer: {
@@ -13,5 +13,5 @@ const store = configureStore({
     loginUser: LoginUserReducer,
     users: UsersReducer
   }
-})
-export default store
+});
+export default store;

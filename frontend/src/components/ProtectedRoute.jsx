@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom'
-import PropTypes from 'prop-types'
+import { Navigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 /**
  * Protected route component that requires authentication
@@ -8,18 +8,18 @@ import PropTypes from 'prop-types'
  * @param {Object} props.user - Current user object
  * @param {string} props.redirectTo - Path to redirect if not authenticated (default: /login)
  */
-const ProtectedRoute = ({ children, user, redirectTo = '/login' }) => {
+const ProtectedRoute = ({ children, user, redirectTo = "/login" }) => {
   if (!user) {
-    return <Navigate to={redirectTo} replace />
+    return <Navigate to={redirectTo} replace />;
   }
 
-  return children
-}
+  return children;
+};
 
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
   user: PropTypes.object,
-  redirectTo: PropTypes.string
-}
+  redirectTo: PropTypes.string,
+};
 
-export default ProtectedRoute
+export default ProtectedRoute;

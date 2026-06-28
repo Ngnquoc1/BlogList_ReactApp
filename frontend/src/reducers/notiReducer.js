@@ -1,38 +1,35 @@
-import { createSlice } from '@reduxjs/toolkit'
-
+import { createSlice } from "@reduxjs/toolkit";
 
 const notiSlice = createSlice({
-  name: 'Notification',
-  //initialState: [],
+  name: "Notification",
   initialState: {
-    message: '',
-    type: ''
+    message: "",
+    type: "",
   },
   reducers: {
     addNoti: (state, action) => {
-      const { message, type } = action.payload
-      const id = Math.floor(Math.random() * 1000000)
+      const { message, type } = action.payload;
+      const id = Math.floor(Math.random() * 1000000);
       //state.push({ content, id })
-      return { message, type }
+      return { message, type };
     },
     removeNoti: (state, action) => {
       // state.shift()
       return {
-        message: '',
-        type: ''
-      }
-    }
-  }
-})
-export const { addNoti, removeNoti } = notiSlice.actions
-export const setNoti = (message,type, time) => {
+        message: "",
+        type: "",
+      };
+    },
+  },
+});
+export const { addNoti, removeNoti } = notiSlice.actions;
+export const setNoti = (message, type, time) => {
   return async (dispatch) => {
-    dispatch(addNoti({ message,type }))
+    dispatch(addNoti({ message, type }));
     setTimeout(() => {
-      dispatch(removeNoti())
-    }, time * 1000
-    )
-  }
-}
+      dispatch(removeNoti());
+    }, time * 1000);
+  };
+};
 
-export default notiSlice.reducer
+export default notiSlice.reducer;
