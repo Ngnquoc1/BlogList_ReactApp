@@ -5,26 +5,16 @@ import Avatar from "../components/ui/Avatar";
 import UserStats from "../components/ui/UserStats";
 import { motion } from "framer-motion";
 import { useUser } from "../hooks/queries/useUser";
-
+import UserSkeleton from "../components/ui/skeletons/UserSkeleton";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
 const UserDetailPage = () => {
   const { id } = useParams();
-  const { data: user, isPending } = useUser(id);
+  const { data: user, isPending, isError, refetch } = useUser(id);
 
-  if (isPending) {
-    return (
-      <Container className="mt-4">
-        <p>Loading...</p>
-      </Container>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Container className="mt-4">
-        <p>User not found</p>
-      </Container>
-    );
-  }
+  if (isPending) return <UserSkeleton />;
+  if (isError) return <ErrorState onRetry={refetch} />;
+  if (!user) return <EmptyState title="User not found" />;
 
   return (
     <Container className="mt-4">
@@ -58,7 +48,7 @@ const UserDetailPage = () => {
         transition={{ delay: 0.2 }}
       >
         <Card className="shadow border-0">
-          <Card.Header className="bg-white">
+          <Card.Header>
             <h3 className="mb-0 d-flex align-items-center">
               <FiFileText className="me-2" />
               Added Blogs

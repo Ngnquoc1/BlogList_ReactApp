@@ -1,29 +1,33 @@
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-
 import { FiFileText, FiLogOut } from "react-icons/fi";
 import Avatar from "../ui/Avatar";
 import ThemeToggle from "../ui/ThemeToggle";
 import { useAuth } from "../../context/AuthContext";
+
 const AppNavbar = () => {
   const navigate = useNavigate();
   const { user: loginUser, logout } = useAuth();
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
   return (
     <Navbar
       collapseOnSelect
-      bg="dark"
-      variant="dark"
+      sticky="top"
       expand="lg"
-      className="mb-4 animate__animated animate__fadeInDown animate__slower"
+      className="app-navbar mb-4"
     >
       <Container>
         <Navbar.Brand as={Link} to="/">
-          <FiFileText className="me-2" style={{ verticalAlign: "middle" }} />
-          <span style={{ verticalAlign: "middle" }}>BlogList App</span>
+          <FiFileText
+            className="me-2 text-primary"
+            style={{ verticalAlign: "middle" }}
+          />
+          <span style={{ verticalAlign: "middle" }}>BlogList</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
@@ -38,17 +42,13 @@ const AppNavbar = () => {
               Stats
             </Nav.Link>
           </Nav>
-          <Nav className="align-items-center">
+          <Nav className="align-items-center gap-2">
             <ThemeToggle />
-            <div className="d-flex align-items-center me-3">
-              <Avatar
-                username={loginUser.username}
-                size="sm"
-                className="me-2"
-              />
-              <span className="text-light">{loginUser.name}</span>
+            <div className="d-flex align-items-center">
+              <Avatar username={loginUser.username} size="sm" className="me-2" />
+              <span className="fw-medium">{loginUser.name}</span>
             </div>
-            <Button variant="outline-danger" size="sm" onClick={handleLogout}>
+            <Button variant="outline-secondary" size="sm" onClick={handleLogout}>
               <FiLogOut className="me-1" />
               Logout
             </Button>
@@ -58,4 +58,5 @@ const AppNavbar = () => {
     </Navbar>
   );
 };
+
 export default AppNavbar;

@@ -8,9 +8,9 @@ import EmptyState from "../components/ui/EmptyState";
 import SearchBar from "../components/ui/SearchBar";
 import { useBlogs } from "../hooks/queries/useBlogs";
 import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
-
+import ErrorState from "../components/ui/ErrorState";
 const BlogPage = () => {
-  const { data: blogs = [], isPending } = useBlogs();
+  const { data: blogs = [], isPending, isError, refetch } = useBlogs();
   const { blogSearch, setBlogSearch, clearBlogSearch } = useUiStore();
   const navigate = useNavigate();
 
@@ -22,6 +22,7 @@ const BlogPage = () => {
   if (isPending) {
     return <BlogListSkeleton />;
   }
+  if (isError) return <ErrorState onRetry={refetch} />;
 
   const containerVariants = {
     hidden: { opacity: 0 },

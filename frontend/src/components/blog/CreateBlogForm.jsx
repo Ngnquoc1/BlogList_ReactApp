@@ -40,9 +40,7 @@ const CreateBlogForm = ({ toggleVisibility }) => {
       <Row className="justify-content-center">
         <Col md={8}>
           <Card className="shadow">
-            <Card.Header as="h5" className="bg-primary text-white">
-              Create New Blog
-            </Card.Header>
+            <Card.Header as="h5">Create New Blog</Card.Header>
             <Card.Body>
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formTitle">

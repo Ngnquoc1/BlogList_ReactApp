@@ -2,15 +2,16 @@ import PropTypes from "prop-types";
 import AppNavbar from "./Navbar";
 import Notifications from "../ui/Notifications";
 import { useAuth } from "../../context/AuthContext";
+
 const AppLayout = ({ children }) => {
-  const { user: loginUser } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <div className="container">
+    <>
       <Notifications />
-      {loginUser && <AppNavbar />}
-      {children}
-    </div>
+      {user && <AppNavbar />}
+      <main className="pb-5">{children}</main>
+    </>
   );
 };
 

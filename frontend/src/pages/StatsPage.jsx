@@ -8,13 +8,18 @@ import {
   sortByLikes,
 } from "../utils/blogHelpers";
 import { Link } from "react-router-dom";
-
+import ErrorState from "../components/ui/ErrorState";
+import StatsSkeleton from "../components/ui/skeletons/StatsSkeleton";
 const StatsPage = () => {
-  const { data: blogs = [] } = useBlogs();
+  const { data: blogs = [], isPending, isError, refetch } = useBlogs();
   const totalLikes = getTotalLikes(blogs);
   const mostLikedBlog = getMostLikedBlog(blogs);
   const uniqueAuthors = getUniqueAuthors(blogs);
   const topBlogs = sortByLikes(blogs).slice(0, 5);
+
+  if (isPending) return <StatsSkeleton />;
+
+  if (isError) return <ErrorState onRetry={refetch} />;
 
   return (
     <Container className="mt-4">
@@ -68,8 +73,8 @@ const StatsPage = () => {
       {/* Most Liked Blog */}
       {mostLikedBlog && (
         <Card className="mb-4 shadow-sm">
-          <Card.Header as="h4" className="bg-primary text-white">
-            <FiTrendingUp className="me-2" />
+          <Card.Header as="h4">
+            <FiTrendingUp className="me-2 text-primary" />
             Most Popular Blog
           </Card.Header>
           <Card.Body>
@@ -92,8 +97,8 @@ const StatsPage = () => {
 
       {/* Top 5 Blogs */}
       <Card className="shadow-sm">
-        <Card.Header as="h4" className="bg-success text-white">
-          <FiBookOpen className="me-2" />
+        <Card.Header as="h4">
+          <FiBookOpen className="me-2 text-primary" />
           Top 5 Blogs
         </Card.Header>
         <ListGroup variant="flush">
@@ -123,8 +128,8 @@ const StatsPage = () => {
 
       {/* All Authors */}
       <Card className="mt-4 shadow-sm">
-        <Card.Header as="h4" className="bg-info text-white">
-          <FiUsers className="me-2" />
+        <Card.Header as="h4">
+          <FiUsers className="me-2 text-primary" />
           All Authors ({uniqueAuthors.length})
         </Card.Header>
         <Card.Body>

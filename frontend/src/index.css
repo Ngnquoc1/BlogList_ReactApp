@@ -1,47 +1,125 @@
-/* Custom styles to complement Bootstrap */
+/* ===== Modern "Minimal Indigo" theme ===== */
 
-/* Light mode background */
-body[data-bs-theme="light"] {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
+:root {
+  --bs-primary: #6366f1;
+  --bs-primary-rgb: 99, 102, 241;
+  --bs-link-color: #6366f1;
+  --bs-link-color-rgb: 99, 102, 241;
+  --bs-link-hover-color: #4f46e5;
+  --bs-border-radius: 0.75rem;
+  --bs-border-radius-lg: 1rem;
 }
 
-/* Dark mode background */
-body[data-bs-theme="dark"] {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  min-height: 100vh;
-}
-
-/* Default (nếu không có theme) */
 body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-color: #f8f9fb;
+  color: #1e293b;
   min-height: 100vh;
+  letter-spacing: -0.011em;
 }
 
+body[data-bs-theme="dark"] {
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+h1, h2, h3, h4, h5 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Comfortable content width */
 .container {
-  max-width: 1200px;
+  max-width: 1140px;
 }
 
-/* Smooth transitions */
-.card, .list-group-item, .btn {
-  transition: all 0.3s ease;
+/* ---- Accent (indigo) buttons ---- */
+.btn-primary {
+  --bs-btn-bg: #6366f1;
+  --bs-btn-border-color: #6366f1;
+  --bs-btn-hover-bg: #4f46e5;
+  --bs-btn-hover-border-color: #4f46e5;
+  --bs-btn-active-bg: #4338ca;
+  --bs-btn-active-border-color: #4338ca;
+  --bs-btn-disabled-bg: #818cf8;
+  --bs-btn-disabled-border-color: #818cf8;
+}
+.btn-outline-primary {
+  --bs-btn-color: #6366f1;
+  --bs-btn-border-color: #c7d2fe;
+  --bs-btn-hover-bg: #6366f1;
+  --bs-btn-hover-border-color: #6366f1;
+  --bs-btn-active-bg: #4f46e5;
+  --bs-btn-active-border-color: #4f46e5;
 }
 
+/* ---- Cards: subtle border + soft shadow, no heavy elevation ---- */
+.card {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04),
+              0 1px 3px rgba(16, 24, 40, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.08) !important;
+  transform: translateY(-1px);
+}
+.card-body {
+  padding: 1.25rem 1.5rem;
+}
+.card + .card {
+  margin-top: 1.5rem;
 }
 
+/* Clean headers (kills the old colored "rainbow" headers' base style) */
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+}
+
+body[data-bs-theme="dark"] .card {
+  background-color: #111827;
+  border-color: #1f2937;
+}
 body[data-bs-theme="dark"] .card:hover {
-  box-shadow: 0 4px 20px rgba(255,255,255,0.1) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* ---- Full-width sticky navbar with blur ---- */
+.app-navbar {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.app-navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.app-navbar .nav-link {
+  font-weight: 500;
+}
+body[data-bs-theme="dark"] .app-navbar {
+  background-color: rgba(11, 17, 32, 0.8);
+  border-bottom-color: #1f2937;
+}
+
+/* ---- List group ---- */
+.list-group-item {
+  border-color: var(--bs-border-color);
+}
 .list-group-item:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(99, 102, 241, 0.05);
+}
+body[data-bs-theme="dark"] .list-group-item:hover {
+  background-color: rgba(99, 102, 241, 0.14);
 }
 
-body[data-bs-theme="dark"] .list-group-item:hover {
-  background-color: #2c2c2c;
+.badge {
+  font-weight: 500;
 }
 
 /* Loading spinner */
@@ -50,22 +128,8 @@ body[data-bs-theme="dark"] .list-group-item:hover {
   display: block;
 }
 
-/* Custom badge colors */
-.badge {
-  font-weight: 500;
-}
-
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
-  
-  h1 {
-    font-size: 1.5rem;
-  }
-  
-  h2 {
-    font-size: 1.3rem;
-  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.35rem; }
 }

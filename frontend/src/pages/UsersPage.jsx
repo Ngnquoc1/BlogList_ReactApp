@@ -1,26 +1,29 @@
 import { useUsers } from "../hooks/queries/useUsers";
-import { Table, Card, Badge } from "react-bootstrap";
+import { Container, Table, Card, Badge } from "react-bootstrap";
 import { FiUser, FiFileText } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Avatar from "../components/ui/Avatar";
 import UserSkeleton from "../components/ui/skeletons/UserSkeleton";
 import { motion } from "framer-motion";
+import ErrorState from "../components/ui/ErrorState";
 
 const UsersPage = () => {
-  const { data: users = [], isPending } = useUsers();
+  const { data: users = [], isPending, isError, refetch } = useUsers();
 
   if (isPending) {
     return <UserSkeleton />;
   }
 
+  if (isError) return <ErrorState onRetry={refetch} />;
+
   return (
-    <div>
+    <Container className="mt-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <Card className="shadow border-0 mb-4">
-          <Card.Header className="bg-white border-0 pt-4 pb-3">
+          <Card.Header className=" border-0 pt-4 pb-3">
             <h2 className="mb-0 d-flex align-items-center">
               <FiUser className="me-2" />
               Users
@@ -31,7 +34,7 @@ const UsersPage = () => {
           </Card.Header>
           <Card.Body className="p-0">
             <Table responsive hover className="mb-0">
-              <thead className="table-light">
+              <thead>
                 <tr>
                   <th className="ps-4">User</th>
                   <th className="text-center">
@@ -81,7 +84,7 @@ const UsersPage = () => {
           </Card.Body>
         </Card>
       </motion.div>
-    </div>
+    </Container>
   );
 };
 export default UsersPage;

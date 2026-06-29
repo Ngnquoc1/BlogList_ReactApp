@@ -7,7 +7,6 @@ const Tooglable = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
 
   const buttonLabel1 = props.buttonLabel1 ? props.buttonLabel1 : "Show";
-  const buttonLabel2 = props.buttonLabel2 ? props.buttonLabel2 : "Cancel";
 
   const hideWhenVisible = { display: visible ? "none" : "" };
   const showWhenVisible = { display: !visible ? "none" : "" };

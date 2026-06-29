@@ -22,12 +22,17 @@ const SearchBar = ({
             </InputGroup.Text>
             <Form.Control
               type="text"
+              aria-label={placeholder}
               placeholder={placeholder}
               value={value}
               onChange={(e) => onSearch(e.target.value)}
             />
             {value && (
-              <Button variant="outline-secondary" onClick={onClear}>
+              <Button
+                variant="outline-secondary"
+                onClick={onClear}
+                aria-label="Clear search"
+              >
                 <FiX />
               </Button>
             )}
@@ -39,6 +44,7 @@ const SearchBar = ({
 };
 
 SearchBar.propTypes = {
+  value: PropTypes.string.isRequired,
   onSearch: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,
   placeholder: PropTypes.string,

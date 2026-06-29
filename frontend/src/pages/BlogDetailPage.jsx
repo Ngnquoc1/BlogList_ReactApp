@@ -18,14 +18,16 @@ import ConfirmModal from "../components/ui/ConfirmModal";
 import ShareButton from "../components/ui/ShareButton";
 import CommentForm from "../components/blog/CommentForm";
 import BlogSkeleton from "../components/ui/skeletons/BlogSkeleton";
+import ErrorState from "../components/ui/ErrorState";
 import { useBlog } from "../hooks/queries/useBlog";
 import { useLikeBlog } from "../hooks/queries/useLikeBlog";
 import { useDeleteBlog } from "../hooks/queries/useDeleteBlog";
 import { useAddComment } from "../hooks/queries/useAddComment";
 import { useAuth } from "../context/AuthContext";
+
 const BlogDetailPage = () => {
   const { id } = useParams();
-  const { data: blog, isPending, isError } = useBlog(id);
+  const { data: blog, isPending, isError, refetch } = useBlog(id);
 
   const comment = useField("text");
   const [commentError, setCommentError] = useState("");
@@ -77,8 +79,9 @@ const BlogDetailPage = () => {
       </Container>
     );
   }
+  if (isError) return <ErrorState onRetry={refetch} />;
 
-  if (isError || !blog) {
+  if (!blog) {
     return (
       <Container className="mt-4">
         <p>Blog not found</p>
@@ -91,7 +94,7 @@ const BlogDetailPage = () => {
   return (
     <Container className="mt-4">
       <Card className="shadow">
-        <Card.Header as="h2" className="bg-primary text-white">
+        <Card.Header as="h2" className="fw-bold">
           {blog.title}
         </Card.Header>
         <Card.Body>

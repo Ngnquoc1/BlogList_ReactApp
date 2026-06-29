@@ -9,10 +9,10 @@ const ThemeToggle = () => {
     <Form.Check
       type="switch"
       id="theme-switch"
+      aria-label="Toggle dark mode"
       label={isDark ? <FiMoon /> : <FiSun />}
       checked={isDark}
       onChange={toggleTheme}
-      className="text-light"
     />
   );
 };
