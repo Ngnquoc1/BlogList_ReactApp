@@ -1,23 +1,13 @@
-import { useState } from "react";
 import { Form, InputGroup, Row, Col, Button } from "react-bootstrap";
 import { FiSearch, FiX } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
-
-const SearchBar = ({ onSearch, onClear, placeholder = "Search blogs..." }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    onSearch(value);
-  };
-
-  const handleClear = () => {
-    setSearchTerm("");
-    onClear();
-  };
-
+const SearchBar = ({
+  value,
+  onSearch,
+  onClear,
+  placeholder = "Search blogs...",
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -33,11 +23,11 @@ const SearchBar = ({ onSearch, onClear, placeholder = "Search blogs..." }) => {
             <Form.Control
               type="text"
               placeholder={placeholder}
-              value={searchTerm}
-              onChange={handleChange}
+              value={value}
+              onChange={(e) => onSearch(e.target.value)}
             />
-            {searchTerm && (
-              <Button variant="outline-secondary" onClick={handleClear}>
+            {value && (
+              <Button variant="outline-secondary" onClick={onClear}>
                 <FiX />
               </Button>
             )}
@@ -51,7 +41,7 @@ const SearchBar = ({ onSearch, onClear, placeholder = "Search blogs..." }) => {
 SearchBar.propTypes = {
   onSearch: PropTypes.func.isRequired,
   onClear: PropTypes.func.isRequired,
-  placeholder: PropTypes.string
+  placeholder: PropTypes.string,
 };
 
 export default SearchBar;

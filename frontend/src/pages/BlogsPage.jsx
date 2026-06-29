@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useUiStore } from "../stores/uiStore";
 import { Container, ListGroup, Badge } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { FiHeart, FiUser, FiFileText } from "react-icons/fi";
@@ -11,12 +11,12 @@ import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
 
 const BlogPage = () => {
   const { data: blogs = [], isPending } = useBlogs();
-  const [searchTerm, setSearchTerm] = useState("");
+  const { blogSearch, setBlogSearch, clearBlogSearch } = useUiStore();
   const navigate = useNavigate();
 
   const sortedBlogs = sortByLikes(blogs);
-  const searchedBlogs = searchTerm
-    ? filterBySearch(sortedBlogs, searchTerm)
+  const searchedBlogs = blogSearch
+    ? filterBySearch(sortedBlogs, blogSearch)
     : sortedBlogs;
 
   if (isPending) {
@@ -50,7 +50,7 @@ const BlogPage = () => {
     );
   }
 
-  if (searchTerm && searchedBlogs.length === 0) {
+  if (blogSearch && searchedBlogs.length === 0) {
     return (
       <Container className="mt-4">
         <motion.h2
@@ -61,14 +61,15 @@ const BlogPage = () => {
           All Blogs
         </motion.h2>
         <SearchBar
-          onSearch={setSearchTerm}
-          onClear={() => setSearchTerm("")}
+          value={blogSearch}
+          onSearch={setBlogSearch}
+          onClear={clearBlogSearch}
           placeholder="Search by title, author, or URL..."
         />
         <EmptyState
           icon={FiFileText}
           title="No Results Found"
-          message={`No blogs match your search "${searchTerm}". Try different keywords.`}
+          message={`No blogs match your search "${blogSearch}". Try different keywords.`}
         />
       </Container>
     );
@@ -85,8 +86,9 @@ const BlogPage = () => {
       </motion.h2>
 
       <SearchBar
-        onSearch={setSearchTerm}
-        onClear={() => setSearchTerm("")}
+        value={blogSearch}
+        onSearch={setBlogSearch}
+        onClear={clearBlogSearch}
         placeholder="Search by title, author, or URL..."
       />
       <ListGroup
