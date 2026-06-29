@@ -13,7 +13,9 @@ export const sortByLikes = (blogs) => {
  * @returns {Array} - Sorted array of blogs
  */
 export const sortByDate = (blogs) => {
-  return [...blogs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return [...blogs].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
 };
 
 /**
@@ -35,10 +37,11 @@ export const filterBySearch = (blogs, searchTerm) => {
   if (!searchTerm) return blogs;
 
   const term = searchTerm.toLowerCase();
-  return blogs.filter(blog =>
-    blog.title.toLowerCase().includes(term) ||
-    blog.author.toLowerCase().includes(term) ||
-    (blog.url && blog.url.toLowerCase().includes(term))
+  return blogs.filter(
+    (blog) =>
+      blog.title.toLowerCase().includes(term) ||
+      blog.author.toLowerCase().includes(term) ||
+      (blog.url && blog.url.toLowerCase().includes(term)),
   );
 };
 
@@ -50,7 +53,7 @@ export const filterBySearch = (blogs, searchTerm) => {
  */
 export const filterByAuthor = (blogs, author) => {
   if (!author) return blogs;
-  return blogs.filter(blog => blog.author === author);
+  return blogs.filter((blog) => blog.author === author);
 };
 
 /**
@@ -59,7 +62,7 @@ export const filterByAuthor = (blogs, author) => {
  * @returns {Array} - Array of unique author names
  */
 export const getUniqueAuthors = (blogs) => {
-  return [...new Set(blogs.map(blog => blog.author))].sort();
+  return [...new Set(blogs.map((blog) => blog.author))].sort();
 };
 
 /**
@@ -78,7 +81,7 @@ export const getTotalLikes = (blogs) => {
  */
 export const getMostLikedBlog = (blogs) => {
   if (blogs.length === 0) return null;
-  return blogs.reduce((max, blog) => blog.likes > max.likes ? blog : max);
+  return blogs.reduce((max, blog) => (blog.likes > max.likes ? blog : max));
 };
 
 /**
@@ -88,7 +91,9 @@ export const getMostLikedBlog = (blogs) => {
  * @returns {Array} - Array of blogs by user
  */
 export const getBlogsByUser = (blogs, userId) => {
-  return blogs.filter(blog => blog.user?.id === userId || blog.user === userId);
+  return blogs.filter(
+    (blog) => blog.user?.id === userId || blog.user === userId,
+  );
 };
 
 /**
@@ -103,7 +108,7 @@ export const formatBlog = (blog) => {
     author: blog.author.trim(),
     url: blog.url.trim(),
     likes: blog.likes || 0,
-    comments: blog.comments || []
+    comments: blog.comments || [],
   };
 };
 
@@ -116,4 +121,21 @@ export const formatBlog = (blog) => {
 export const isOwner = (blog, user) => {
   if (!blog || !user) return false;
   return blog.user?.username === user.username || blog.user?.id === user.id;
+};
+
+export const getAllTags = (blogs) => {
+  const counts = new Map();
+  blogs.forEach((blog) =>
+    (blog.tags || []).forEach((tag) =>
+      counts.set(tag, (counts.get(tag) || 0) + 1),
+    ),
+  );
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])) // nhiều trước, rồi A→Z
+    .map(([tag, count]) => ({ tag, count }));
+};
+
+export const filterByTag = (blogs, tag) => {
+  if (!tag) return blogs;
+  return blogs.filter((blog) => (blog.tags || []).includes(tag));
 };

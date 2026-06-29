@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
+import { useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import { useCreateBlog } from "../../hooks/queries/useCreateBlog";
 
 import { Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { FiEdit, FiLink, FiUser } from "react-icons/fi";
-
+import TagInput from "./TagInput";
 const CreateBlogForm = ({ toggleVisibility }) => {
   const createBlogMutation = useCreateBlog();
 
@@ -14,6 +15,8 @@ const CreateBlogForm = ({ toggleVisibility }) => {
     url: "",
   });
 
+  const [tags, setTags] = useState([]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -21,11 +24,13 @@ const CreateBlogForm = ({ toggleVisibility }) => {
       title: values.title.trim(),
       author: values.author.trim(),
       url: values.url.trim(),
+      tags,
     };
 
     createBlogMutation.mutate(newBlog, {
       onSuccess: () => {
         resetForm();
+        setTags([]);
         if (toggleVisibility) {
           toggleVisibility();
         }
@@ -86,6 +91,11 @@ const CreateBlogForm = ({ toggleVisibility }) => {
                     onChange={fields.url.onChange}
                     required
                   />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Tags</Form.Label>
+                  <TagInput tags={tags} onChange={setTags} />
                 </Form.Group>
 
                 <div className="d-flex gap-2">

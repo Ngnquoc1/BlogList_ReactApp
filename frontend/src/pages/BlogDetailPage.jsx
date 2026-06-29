@@ -98,6 +98,31 @@ const BlogDetailPage = () => {
           {blog.title}
         </Card.Header>
         <Card.Body>
+          {blog.preview?.image && (
+            <img
+              src={blog.preview.image}
+              alt=""
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+              className="img-fluid rounded mb-3"
+              style={{ width: "100%", maxHeight: 320, objectFit: "cover" }}
+            />
+          )}
+          {blog.preview?.description && (
+            <p className="text-muted">{blog.preview.description}</p>
+          )}
+
+          {blog.tags?.length > 0 && (
+            <div className="d-flex flex-wrap gap-1 mt-1">
+              {blog.tags.slice(0, 3).map((t) => (
+                <Badge key={t} bg="light" text="dark">
+                  #{t}
+                </Badge>
+              ))}
+            </div>
+          )}
+
           <div className="mb-3">
             <a
               href={blog.url}
@@ -106,7 +131,7 @@ const BlogDetailPage = () => {
               className="text-decoration-none"
             >
               <FiExternalLink className="me-2" />
-              {blog.url}
+              {blog.preview?.siteName || blog.url}
             </a>
           </div>
 

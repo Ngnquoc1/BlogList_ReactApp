@@ -4,11 +4,12 @@ import { useUpdateBlog } from "../../hooks/queries/useUpdateBlog";
 import { Modal, Form, Button } from "react-bootstrap";
 import { FiEdit, FiLink, FiUser, FiSave, FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
-
+import TagInput from "./TagInput";
 const EditBlogForm = ({ blog, show, onHide }) => {
   const [title, setTitle] = useState(blog.title);
   const [author, setAuthor] = useState(blog.author);
   const [url, setUrl] = useState(blog.url);
+  const [tags, setTags] = useState(blog.tags || []);
 
   const updateBlogMutation = useUpdateBlog();
   const isSubmitting = updateBlogMutation.isPending;
@@ -22,6 +23,7 @@ const EditBlogForm = ({ blog, show, onHide }) => {
       url: url.trim(),
       likes: blog.likes,
       user: blog.user,
+      tags: tags,
     };
 
     updateBlogMutation.mutate(
@@ -83,8 +85,17 @@ const EditBlogForm = ({ blog, show, onHide }) => {
             />
           </Form.Group>
 
+          <Form.Group className="mb-3">
+            <Form.Label>Tags</Form.Label>
+            <TagInput tags={tags} onChange={setTags} />
+          </Form.Group>
+
           <div className="d-flex gap-2 justify-content-end">
-            <Button variant="secondary" onClick={onHide} disabled={isSubmitting}>
+            <Button
+              variant="secondary"
+              onClick={onHide}
+              disabled={isSubmitting}
+            >
               <FiX className="me-2" />
               Cancel
             </Button>

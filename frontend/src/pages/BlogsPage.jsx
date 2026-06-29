@@ -2,22 +2,39 @@ import { useUiStore } from "../stores/uiStore";
 import { Container, ListGroup, Badge } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { FiHeart, FiUser, FiFileText } from "react-icons/fi";
-import { sortByLikes, filterBySearch } from "../utils/blogHelpers";
 import { motion } from "framer-motion";
+import {
+  sortByLikes,
+  filterBySearch,
+  getAllTags,
+  filterByTag,
+} from "../utils/blogHelpers";
+import { useBlogs } from "../hooks/queries/useBlogs";
+
 import EmptyState from "../components/ui/EmptyState";
 import SearchBar from "../components/ui/SearchBar";
-import { useBlogs } from "../hooks/queries/useBlogs";
-import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
 import ErrorState from "../components/ui/ErrorState";
+import TagFilter from "../components/ui/TagFilter";
+import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
+
 const BlogPage = () => {
   const { data: blogs = [], isPending, isError, refetch } = useBlogs();
-  const { blogSearch, setBlogSearch, clearBlogSearch } = useUiStore();
+  const {
+    blogSearch,
+    setBlogSearch,
+    clearBlogSearch,
+    activeTag,
+    setActiveTag,
+    clearActiveTag,
+  } = useUiStore();
   const navigate = useNavigate();
 
   const sortedBlogs = sortByLikes(blogs);
-  const searchedBlogs = blogSearch
+  const allTags = getAllTags(blogs);
+  const afterSearch = blogSearch
     ? filterBySearch(sortedBlogs, blogSearch)
     : sortedBlogs;
+  const visibleBlogs = filterByTag(afterSearch, activeTag);
 
   if (isPending) {
     return <BlogListSkeleton />;
@@ -51,7 +68,13 @@ const BlogPage = () => {
     );
   }
 
-  if (blogSearch && searchedBlogs.length === 0) {
+  if ((blogSearch || activeTag) && visibleBlogs.length === 0) {
+    const activeFilters = [
+      blogSearch && `search "${blogSearch}"`,
+      activeTag && `tag #${activeTag}`,
+    ]
+      .filter(Boolean)
+      .join(" and ");
     return (
       <Container className="mt-4">
         <motion.h2
@@ -67,10 +90,16 @@ const BlogPage = () => {
           onClear={clearBlogSearch}
           placeholder="Search by title, author, or URL..."
         />
+        <TagFilter
+          tags={allTags}
+          activeTag={activeTag}
+          onSelect={setActiveTag}
+          onClear={clearActiveTag}
+        />
         <EmptyState
           icon={FiFileText}
           title="No Results Found"
-          message={`No blogs match your search "${blogSearch}". Try different keywords.`}
+          message={`No blogs match ${activeFilters}. Try different filters.`}
         />
       </Container>
     );
@@ -92,13 +121,20 @@ const BlogPage = () => {
         onClear={clearBlogSearch}
         placeholder="Search by title, author, or URL..."
       />
+
+      <TagFilter
+        tags={allTags}
+        activeTag={activeTag}
+        onSelect={setActiveTag}
+        onClear={clearActiveTag}
+      />
       <ListGroup
         as={motion.div}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        {searchedBlogs.map((blog) => (
+        {visibleBlogs.map((blog) => (
           <ListGroup.Item
             key={blog.id}
             action
@@ -109,21 +145,47 @@ const BlogPage = () => {
           >
             <motion.div
               variants={itemVariants}
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+              className="d-flex align-items-center gap-3"
+              style={{ width: "100%" }}
             >
-              <div>
-                <h5 className="mb-1">{blog.title}</h5>
+              {blog.preview?.image && (
+                <img
+                  src={blog.preview.image}
+                  alt=""
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                  style={{
+                    width: 96,
+                    height: 64,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+              <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                <h5 className="mb-1 text-truncate">{blog.title}</h5>
+                {blog.preview?.description && (
+                  <p className="mb-1 text-muted small text-truncate">
+                    {blog.preview.description}
+                  </p>
+                )}
                 <small className="text-muted">
                   <FiUser className="me-1" />
                   {blog.author}
                 </small>
+                {blog.tags?.length > 0 && (
+                  <div className="d-flex flex-wrap gap-1 mt-1">
+                    {blog.tags.slice(0, 3).map((t) => (
+                      <Badge key={t} bg="light" text="dark">
+                        #{t}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
-              <Badge bg="primary" pill>
+              <Badge bg="primary" pill className="flex-shrink-0">
                 <FiHeart className="me-1" />
                 {blog.likes}
               </Badge>

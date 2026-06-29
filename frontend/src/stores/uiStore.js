@@ -5,4 +5,8 @@ export const useUiStore = create((set) => ({
   blogSearch: "",
   setBlogSearch: (blogSearch) => set({ blogSearch }),
   clearBlogSearch: () => set({ blogSearch: "" }),
+
+  activeTag: "",
+  setActiveTag: (activeTag) => set({ activeTag }),
+  clearActiveTag: () => set({ activeTag: "" }),
 }));
