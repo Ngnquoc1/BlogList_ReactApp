@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Container, Card, Button, Badge, ListGroup } from "react-bootstrap";
 import {
   FiHeart,
@@ -23,7 +22,7 @@ import { useBlog } from "../hooks/queries/useBlog";
 import { useLikeBlog } from "../hooks/queries/useLikeBlog";
 import { useDeleteBlog } from "../hooks/queries/useDeleteBlog";
 import { useAddComment } from "../hooks/queries/useAddComment";
-
+import { useAuth } from "../context/AuthContext";
 const BlogDetailPage = () => {
   const { id } = useParams();
   const { data: blog, isPending, isError } = useBlog(id);
@@ -33,7 +32,7 @@ const BlogDetailPage = () => {
   const [isLiking, setIsLiking] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const loginUser = useSelector((state) => state.loginUser);
+  const { user: loginUser } = useAuth();
   const navigate = useNavigate();
 
   const likeBlog = useLikeBlog();

@@ -1,27 +1,27 @@
-import { useDispatch } from "react-redux";
-import { loginUser } from "../reducers/loginUserReducer";
-import { useNavigate } from "react-router-dom";
 import { Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { FiMail, FiLock } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { useField } from "../hooks/useForm";
+import { useLogin } from "../hooks/queries/useLogin";
 
 const LoginPage = () => {
   const username = useField("text");
   const password = useField("password");
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const loginMutation = useLogin();
   const handleLogin = async (event) => {
     event.preventDefault();
-    dispatch(
-      loginUser({
-        username: username.value,
-        password: password.value,
-      }),
+    loginMutation.mutate(
+      { username: username.value, password: password.value },
+      {
+        onSuccess: () => {
+          username.reset();
+          password.reset();
+          navigate("/");
+        },
+      },
     );
-    username.reset();
-    password.reset();
-    navigate("/");
   };
   return (
     <Container>

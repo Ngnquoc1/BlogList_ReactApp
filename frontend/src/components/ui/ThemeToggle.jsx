@@ -1,31 +1,16 @@
-import { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import { FiSun, FiMoon } from "react-icons/fi";
+import { useTheme } from "../../context/ThemeContext";
 
 const ThemeToggle = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
-      setDarkMode(true);
-      document.body.setAttribute("data-bs-theme", "dark");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !darkMode;
-    setDarkMode(newTheme);
-    document.body.setAttribute("data-bs-theme", newTheme ? "dark" : "light");
-    localStorage.setItem("theme", newTheme ? "dark" : "light");
-  };
-
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
   return (
     <Form.Check
       type="switch"
       id="theme-switch"
-      label={darkMode ? <FiMoon /> : <FiSun />}
-      checked={darkMode}
+      label={isDark ? <FiMoon /> : <FiSun />}
+      checked={isDark}
       onChange={toggleTheme}
       className="text-light"
     />

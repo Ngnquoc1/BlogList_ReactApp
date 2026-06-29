@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import PropTypes from "prop-types";
-
+import { useAuth } from "../context/AuthContext";
 /**
  * Protected route component that requires authentication
  * @param {Object} props - Component props
@@ -8,7 +8,8 @@ import PropTypes from "prop-types";
  * @param {Object} props.user - Current user object
  * @param {string} props.redirectTo - Path to redirect if not authenticated (default: /login)
  */
-const ProtectedRoute = ({ children, user, redirectTo = "/login" }) => {
+const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
+  const { user } = useAuth();
   if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
@@ -18,7 +19,6 @@ const ProtectedRoute = ({ children, user, redirectTo = "/login" }) => {
 
 ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
-  user: PropTypes.object,
   redirectTo: PropTypes.string,
 };
 

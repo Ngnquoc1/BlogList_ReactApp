@@ -1,10 +1,9 @@
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
 import AppNavbar from "./Navbar";
 import Notifications from "../ui/Notifications";
-
+import { useAuth } from "../../context/AuthContext";
 const AppLayout = ({ children }) => {
-  const loginUser = useSelector((state) => state.loginUser);
+  const { user: loginUser } = useAuth();
 
   return (
     <div className="container">

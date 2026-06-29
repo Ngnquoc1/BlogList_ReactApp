@@ -1,18 +1,15 @@
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../reducers/loginUserReducer";
+
 import { FiFileText, FiLogOut } from "react-icons/fi";
 import Avatar from "../ui/Avatar";
 import ThemeToggle from "../ui/ThemeToggle";
-
+import { useAuth } from "../../context/AuthContext";
 const AppNavbar = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const loginUser = useSelector((state) => state.loginUser);
-
+  const { user: loginUser, logout } = useAuth();
   const handleLogout = () => {
-    dispatch(logoutUser());
+    logout();
     navigate("/login");
   };
   return (

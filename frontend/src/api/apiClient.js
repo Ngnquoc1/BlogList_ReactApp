@@ -15,4 +15,17 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.localStorage.removeItem("loggedBlogAppUser");
+      if (window.location.pathname !== "/login") {
+        window.location.assign("/login"); // token hết hạn → đăng xuất
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default apiClient;

@@ -9,24 +9,16 @@ import Tooglable from "./components/ui/Tooglable";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageWrapper from "./components/ui/PageWrapper";
 import AppLayout from "./components/layout/AppLayout";
-
-import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { initializeLoginUser } from "./reducers/loginUserReducer";
+import { useAuth } from "./context/AuthContext";
+import { useRef } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 const App = () => {
   const createBlogRef = useRef();
   const location = useLocation();
-  const dispatch = useDispatch();
 
-  const loginUser = useSelector((state) => state.loginUser);
-
-  // Auth still lives in Redux until Phase 3 (AuthContext)
-  useEffect(() => {
-    dispatch(initializeLoginUser());
-  }, [dispatch]);
+  const { user: loginUser } = useAuth();
 
   return (
     <AppLayout>
@@ -47,7 +39,7 @@ const App = () => {
           <Route
             path="/"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <Tooglable
                     buttonLabel1="Create New Blog"
@@ -67,7 +59,7 @@ const App = () => {
           <Route
             path="/blogs"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <BlogList />
                 </PageWrapper>
@@ -77,7 +69,7 @@ const App = () => {
           <Route
             path="/users"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <Users />
                 </PageWrapper>
@@ -87,7 +79,7 @@ const App = () => {
           <Route
             path="/users/:id"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <User />
                 </PageWrapper>
@@ -97,7 +89,7 @@ const App = () => {
           <Route
             path="/stats"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <BlogStats />
                 </PageWrapper>
@@ -107,7 +99,7 @@ const App = () => {
           <Route
             path="/blogs/:id"
             element={
-              <ProtectedRoute user={loginUser}>
+              <ProtectedRoute>
                 <PageWrapper>
                   <Blog />
                 </PageWrapper>
