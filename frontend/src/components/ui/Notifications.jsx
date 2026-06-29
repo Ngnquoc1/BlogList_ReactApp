@@ -1,16 +1,19 @@
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
-const Notification = () => {
-  const { message, type } = useSelector((state) => state.noti);
-
-  useEffect(() => {
-    if (message) {
-      if (type === "success") {
-        toast.success(message, {
+// Toasts được phát qua lib/notify (react-hot-toast) — component này chỉ là nơi
+// hiển thị và cấu hình style chung. Không còn phụ thuộc Redux.
+const Notifications = () => {
+  return (
+    <Toaster
+      position="top-right"
+      reverseOrder={false}
+      toastOptions={{
+        style: {
+          fontSize: "14px",
+          fontWeight: "500",
+        },
+        success: {
           duration: 3000,
-          position: "top-right",
           style: {
             background: "#198754",
             color: "#fff",
@@ -21,11 +24,9 @@ const Notification = () => {
             primary: "#fff",
             secondary: "#198754",
           },
-        });
-      } else if (type === "error") {
-        toast.error(message, {
+        },
+        error: {
           duration: 4000,
-          position: "top-right",
           style: {
             background: "#dc3545",
             color: "#fff",
@@ -36,24 +37,10 @@ const Notification = () => {
             primary: "#fff",
             secondary: "#dc3545",
           },
-        });
-      }
-    }
-  }, [message, type]);
-
-  return (
-    <Toaster
-      position="top-right"
-      reverseOrder={false}
-      toastOptions={{
-        className: "",
-        style: {
-          fontSize: "14px",
-          fontWeight: "500",
         },
       }}
     />
   );
 };
 
-export default Notification;
+export default Notifications;
