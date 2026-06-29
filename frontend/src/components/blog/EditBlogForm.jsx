@@ -1,7 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import { updateBlog } from "../../reducers/blogReducer";
+import { useUpdateBlog } from "../../hooks/queries/useUpdateBlog";
 import { Modal, Form, Button } from "react-bootstrap";
 import { FiEdit, FiLink, FiUser, FiSave, FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
@@ -10,32 +9,25 @@ const EditBlogForm = ({ blog, show, onHide }) => {
   const [title, setTitle] = useState(blog.title);
   const [author, setAuthor] = useState(blog.author);
   const [url, setUrl] = useState(blog.url);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const dispatch = useDispatch();
+  const updateBlogMutation = useUpdateBlog();
+  const isSubmitting = updateBlogMutation.isPending;
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      const updatedBlog = {
-        title: title.trim(),
-        author: author.trim(),
-        url: url.trim(),
-        likes: blog.likes,
-        user: blog.user
-      };
+    const updatedBlog = {
+      title: title.trim(),
+      author: author.trim(),
+      url: url.trim(),
+      likes: blog.likes,
+      user: blog.user,
+    };
 
-      await dispatch(updateBlog(blog.id, updatedBlog));
-      onHide();
-    }
-    catch (error) {
-      console.error("Error updating blog:", error);
-    }
-    finally {
-      setIsSubmitting(false);
-    }
+    updateBlogMutation.mutate(
+      { id: blog.id, data: updatedBlog },
+      { onSuccess: onHide },
+    );
   };
 
   return (
@@ -92,11 +84,7 @@ const EditBlogForm = ({ blog, show, onHide }) => {
           </Form.Group>
 
           <div className="d-flex gap-2 justify-content-end">
-            <Button
-              variant="secondary"
-              onClick={onHide}
-              disabled={isSubmitting}
-            >
+            <Button variant="secondary" onClick={onHide} disabled={isSubmitting}>
               <FiX className="me-2" />
               Cancel
             </Button>
@@ -104,7 +92,9 @@ const EditBlogForm = ({ blog, show, onHide }) => {
               <Button
                 variant="primary"
                 type="submit"
-                disabled={isSubmitting || !title.trim() || !author.trim() || !url.trim()}
+                disabled={
+                  isSubmitting || !title.trim() || !author.trim() || !url.trim()
+                }
               >
                 <FiSave className="me-2" />
                 {isSubmitting ? "Saving..." : "Save Changes"}
@@ -124,10 +114,10 @@ EditBlogForm.propTypes = {
     author: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
     likes: PropTypes.number.isRequired,
-    user: PropTypes.object
+    user: PropTypes.object,
   }).isRequired,
   show: PropTypes.bool.isRequired,
-  onHide: PropTypes.func.isRequired
+  onHide: PropTypes.func.isRequired,
 };
 
 export default EditBlogForm;

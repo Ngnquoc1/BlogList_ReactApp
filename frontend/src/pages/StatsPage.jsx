@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useBlogs } from "../hooks/queries/useBlogs";
 import { Container, Card, Row, Col, ListGroup } from "react-bootstrap";
 import { FiHeart, FiBookOpen, FiUsers, FiTrendingUp } from "react-icons/fi";
 import {
@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router-dom";
 
 const StatsPage = () => {
-  const blogs = useSelector((state) => state.blogs);
+  const { data: blogs = [] } = useBlogs();
   const totalLikes = getTotalLikes(blogs);
   const mostLikedBlog = getMostLikedBlog(blogs);
   const uniqueAuthors = getUniqueAuthors(blogs);

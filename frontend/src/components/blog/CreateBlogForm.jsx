@@ -1,57 +1,44 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import { createBlog } from "../../reducers/blogReducer";
 import { useForm } from "../../hooks/useForm";
+import { useCreateBlog } from "../../hooks/queries/useCreateBlog";
 
 import { Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { FiEdit, FiLink, FiUser } from "react-icons/fi";
 
 const CreateBlogForm = ({ toggleVisibility }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const dispatch = useDispatch();
+  const createBlogMutation = useCreateBlog();
 
   const { values, fields, resetForm } = useForm({
     title: "",
     author: "",
-    url: ""
+    url: "",
   });
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      const newBlog = {
-        title: values.title.trim(),
-        author: values.author.trim(),
-        url: values.url.trim(),
-      };
+    const newBlog = {
+      title: values.title.trim(),
+      author: values.author.trim(),
+      url: values.url.trim(),
+    };
 
-      await dispatch(createBlog(newBlog));
-
-      // Clear form after successful submission
-      resetForm();
-
-      // Close the form
-      if (toggleVisibility) {
-        toggleVisibility();
-      }
-    }
-    catch (error) {
-      // Error handling is already in the reducer
-      console.error("Error creating blog:", error);
-    }
-    finally {
-      setIsSubmitting(false);
-    }
+    createBlogMutation.mutate(newBlog, {
+      onSuccess: () => {
+        resetForm();
+        if (toggleVisibility) {
+          toggleVisibility();
+        }
+      },
+    });
   };
+
+  const isSubmitting = createBlogMutation.isPending;
 
   return (
     <Container className="mt-4">
       <Row className="justify-content-center">
         <Col md={8}>
-
           <Card className="shadow">
             <Card.Header as="h5" className="bg-primary text-white">
               Create New Blog
@@ -107,7 +94,12 @@ const CreateBlogForm = ({ toggleVisibility }) => {
                   <Button
                     variant="primary"
                     type="submit"
-                    disabled={isSubmitting || !values.title.trim() || !values.author.trim() || !values.url.trim()}
+                    disabled={
+                      isSubmitting ||
+                      !values.title.trim() ||
+                      !values.author.trim() ||
+                      !values.url.trim()
+                    }
                   >
                     {isSubmitting ? "Creating..." : "Create"}
                   </Button>
@@ -131,7 +123,7 @@ const CreateBlogForm = ({ toggleVisibility }) => {
 };
 
 CreateBlogForm.propTypes = {
-  toggleVisibility: PropTypes.func
+  toggleVisibility: PropTypes.func,
 };
 
 export default CreateBlogForm;

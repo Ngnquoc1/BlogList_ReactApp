@@ -1,19 +1,27 @@
 import { useState } from "react";
 import { Container, ListGroup, Badge } from "react-bootstrap";
-import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { FiHeart, FiUser, FiFileText } from "react-icons/fi";
 import { sortByLikes, filterBySearch } from "../utils/blogHelpers";
 import { motion } from "framer-motion";
 import EmptyState from "../components/ui/EmptyState";
 import SearchBar from "../components/ui/SearchBar";
+import { useBlogs } from "../hooks/queries/useBlogs";
+import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
 
 const BlogPage = () => {
-  const allBlogs = useSelector((state) => sortByLikes(state.blogs));
+  const { data: blogs = [], isPending } = useBlogs();
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const blogs = searchTerm ? filterBySearch(allBlogs, searchTerm) : allBlogs;
+  const sortedBlogs = sortByLikes(blogs);
+  const searchedBlogs = searchTerm
+    ? filterBySearch(sortedBlogs, searchTerm)
+    : sortedBlogs;
+
+  if (isPending) {
+    return <BlogListSkeleton />;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,7 +38,7 @@ const BlogPage = () => {
     visible: { opacity: 1, x: 0 },
   };
 
-  if (allBlogs.length === 0) {
+  if (blogs.length === 0) {
     return (
       <EmptyState
         icon={FiFileText}
@@ -42,7 +50,7 @@ const BlogPage = () => {
     );
   }
 
-  if (searchTerm && blogs.length === 0) {
+  if (searchTerm && searchedBlogs.length === 0) {
     return (
       <Container className="mt-4">
         <motion.h2
@@ -87,7 +95,7 @@ const BlogPage = () => {
         initial="hidden"
         animate="visible"
       >
-        {blogs.map((blog) => (
+        {searchedBlogs.map((blog) => (
           <ListGroup.Item
             key={blog.id}
             action

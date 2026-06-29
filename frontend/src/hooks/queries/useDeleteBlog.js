@@ -3,17 +3,17 @@ import blogService from "../../api/blogs";
 import { notify } from "../../lib/notify";
 import handleError from "../../utils/handleError";
 
-export const useUpdateBlog = () => {
+export const useDeleteBlog = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }) => blogService.update(id, data),
-    onSuccess: (updatedBlog) => {
+    mutationFn: (blog) => blogService.remove(blog.id),
+    onSuccess: (_data, blog) => {
       queryClient.setQueryData(["blogs"], (old) =>
-        old?.map((b) => (b.id === updatedBlog.id ? updatedBlog : b)),
+        old?.filter((b) => b.id !== blog.id),
       );
-      queryClient.setQueryData(["blogs", updatedBlog.id], updatedBlog);
-      notify.success(`${updatedBlog.title} updated successfully`);
+      queryClient.removeQueries({ queryKey: ["blogs", blog.id] });
+      notify.success(`${blog.title} removed`);
     },
     onError: (err) => notify.error(handleError(err)),
   });

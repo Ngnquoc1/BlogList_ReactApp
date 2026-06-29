@@ -1,11 +1,23 @@
 import { Container, Card, ListGroup, Badge, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { FiFileText, FiHeart } from "react-icons/fi";
 import Avatar from "../components/ui/Avatar";
 import UserStats from "../components/ui/UserStats";
 import { motion } from "framer-motion";
+import { useUser } from "../hooks/queries/useUser";
 
-const UserDetailPage = ({ user }) => {
+const UserDetailPage = () => {
+  const { id } = useParams();
+  const { data: user, isPending } = useUser(id);
+
+  if (isPending) {
+    return (
+      <Container className="mt-4">
+        <p>Loading...</p>
+      </Container>
+    );
+  }
+
   if (!user) {
     return (
       <Container className="mt-4">

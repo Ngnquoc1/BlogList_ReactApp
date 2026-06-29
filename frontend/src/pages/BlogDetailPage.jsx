@@ -1,8 +1,6 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
-import { deleteBlog, likeBlog, addComment } from "../reducers/blogReducer";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Container, Card, Button, Badge, ListGroup } from "react-bootstrap";
 import {
   FiHeart,
@@ -20,8 +18,16 @@ import EditBlogForm from "../components/blog/EditBlogForm";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import ShareButton from "../components/ui/ShareButton";
 import CommentForm from "../components/blog/CommentForm";
+import BlogSkeleton from "../components/ui/skeletons/BlogSkeleton";
+import { useBlog } from "../hooks/queries/useBlog";
+import { useLikeBlog } from "../hooks/queries/useLikeBlog";
+import { useDeleteBlog } from "../hooks/queries/useDeleteBlog";
+import { useAddComment } from "../hooks/queries/useAddComment";
 
-const BlogDetailPage = ({ blog }) => {
+const BlogDetailPage = () => {
+  const { id } = useParams();
+  const { data: blog, isPending, isError } = useBlog(id);
+
   const comment = useField("text");
   const [commentError, setCommentError] = useState("");
   const [isLiking, setIsLiking] = useState(false);
@@ -29,30 +35,31 @@ const BlogDetailPage = ({ blog }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const loginUser = useSelector((state) => state.loginUser);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const likeBlog = useLikeBlog();
+  const deleteBlog = useDeleteBlog();
+  const addComment = useAddComment();
 
   const handleLike = () => {
     setIsLiking(true);
-    dispatch(likeBlog(blog));
+    likeBlog.mutate(blog);
     setTimeout(() => setIsLiking(false), 600);
   };
 
   const handleRemove = () => {
-    dispatch(deleteBlog(blog));
-    navigate("/blogs");
+    deleteBlog.mutate(blog, { onSuccess: () => navigate("/blogs") });
   };
 
   const handleAddComment = (event) => {
     event.preventDefault();
 
-    // Validate comment
     const validation = validateComment(comment.value);
     if (!validation.isValid) {
       setCommentError(validation.error);
       return;
     }
 
-    dispatch(addComment(blog.id, comment.value));
+    addComment.mutate({ id: blog.id, comment: comment.value });
     comment.reset();
     setCommentError("");
   };
@@ -64,13 +71,22 @@ const BlogDetailPage = ({ blog }) => {
     }
   };
 
-  if (!blog) {
+  if (isPending) {
+    return (
+      <Container className="mt-4">
+        <BlogSkeleton />
+      </Container>
+    );
+  }
+
+  if (isError || !blog) {
     return (
       <Container className="mt-4">
         <p>Blog not found</p>
       </Container>
     );
   }
+
   const isOwner = checkIsOwner(blog, loginUser);
 
   return (
@@ -190,22 +206,6 @@ const BlogDetailPage = ({ blog }) => {
       </Card>
     </Container>
   );
-};
-
-BlogDetailPage.propTypes = {
-  blog: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    author: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    likes: PropTypes.number.isRequired,
-    comments: PropTypes.arrayOf(PropTypes.string),
-    user: PropTypes.shape({
-      id: PropTypes.string,
-      username: PropTypes.string,
-      name: PropTypes.string,
-    }),
-  }),
 };
 
 export default BlogDetailPage;

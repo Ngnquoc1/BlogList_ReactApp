@@ -8,6 +8,7 @@ export const useLikeBlog = () => {
   return useMutation({
     mutationFn: (blog) =>
       blogService.update(blog.id, { ...blog, likes: blog.likes + 1 }),
+
     onMutate: async (blog) => {
       await qc.cancelQueries({ queryKey: ["blogs"] });
       const prevDetail = qc.getQueryData(["blogs", blog.id]);
@@ -21,11 +22,13 @@ export const useLikeBlog = () => {
       );
       return { prevDetail, prevList };
     },
+
     onError: (err, blog, ctx) => {
       qc.setQueryData(["blogs", blog.id], ctx?.prevDetail);
       qc.setQueryData(["blogs"], ctx?.prevList);
       notify.error(handleError(err));
     },
+
     onSettled: () => qc.invalidateQueries({ queryKey: ["blogs"] }),
   });
 };

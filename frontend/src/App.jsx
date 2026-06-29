@@ -10,49 +10,23 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PageWrapper from "./components/ui/PageWrapper";
 import AppLayout from "./components/layout/AppLayout";
 
-import { useRef } from "react";
-import { useSelector } from "react-redux";
-import {
-  useAppInitialization,
-  useRouteMatch,
-} from "./hooks/useAppInitialization";
-import { Routes, Route, Navigate, useMatch, useLocation } from "react-router-dom";
-
-import { Container, Spinner, Alert } from "react-bootstrap";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { initializeLoginUser } from "./reducers/loginUserReducer";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 const App = () => {
   const createBlogRef = useRef();
   const location = useLocation();
-  const { loading, error } = useAppInitialization();
+  const dispatch = useDispatch();
 
   const loginUser = useSelector((state) => state.loginUser);
-  const users = useSelector((state) => state.users);
-  const blogs = useSelector((state) => state.blogs);
 
-  // Route matching with custom hook
-  const user = useRouteMatch(useMatch, users, "/users/:id");
-  const blog = useRouteMatch(useMatch, blogs, "/blogs/:id");
-
-  if (loading) {
-    return (
-      <Container className="text-center mt-5">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Loading...</p>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="mt-5">
-        <Alert variant="danger">
-          <Alert.Heading>Error Loading Application</Alert.Heading>
-          <p>{error}</p>
-        </Alert>
-      </Container>
-    );
-  }
+  // Auth still lives in Redux until Phase 3 (AuthContext)
+  useEffect(() => {
+    dispatch(initializeLoginUser());
+  }, [dispatch]);
 
   return (
     <AppLayout>
@@ -115,7 +89,7 @@ const App = () => {
             element={
               <ProtectedRoute user={loginUser}>
                 <PageWrapper>
-                  <User user={user} />
+                  <User />
                 </PageWrapper>
               </ProtectedRoute>
             }
@@ -135,7 +109,7 @@ const App = () => {
             element={
               <ProtectedRoute user={loginUser}>
                 <PageWrapper>
-                  <Blog blog={blog} />
+                  <Blog />
                 </PageWrapper>
               </ProtectedRoute>
             }

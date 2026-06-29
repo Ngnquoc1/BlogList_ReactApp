@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useUsers } from "../hooks/queries/useUsers";
 import { Table, Card, Badge } from "react-bootstrap";
 import { FiUser, FiFileText } from "react-icons/fi";
 import { Link } from "react-router-dom";
@@ -7,11 +7,10 @@ import UserSkeleton from "../components/ui/skeletons/UserSkeleton";
 import { motion } from "framer-motion";
 
 const UsersPage = () => {
-  const users = useSelector((state) => state.users);
-  const loading = useSelector((state) => state.users === null);
+  const { data: users = [], isPending } = useUsers();
 
-  if (loading) {
-    return <UserSkeleton count={5} />;
+  if (isPending) {
+    return <UserSkeleton />;
   }
 
   return (
