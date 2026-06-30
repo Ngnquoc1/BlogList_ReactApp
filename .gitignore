@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets / environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
