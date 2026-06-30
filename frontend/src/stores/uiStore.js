@@ -9,4 +9,7 @@ export const useUiStore = create((set) => ({
   activeTag: "",
   setActiveTag: (activeTag) => set({ activeTag }),
   clearActiveTag: () => set({ activeTag: "" }),
+
+  feedSort: "hot", // "hot" | "top" | "new"
+  setFeedSort: (feedSort) => set({ feedSort }),
 }));

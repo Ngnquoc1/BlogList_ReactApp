@@ -1,22 +1,23 @@
-import { useUiStore } from "../stores/uiStore";
 import { Container, ListGroup, Badge } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { FiHeart, FiUser, FiFileText } from "react-icons/fi";
 import { motion } from "framer-motion";
 import {
-  sortByLikes,
   filterBySearch,
   getAllTags,
   filterByTag,
+  rankBlogs,
+  timeAgo,
+  getBlogDate,
 } from "../utils/blogHelpers";
+import { useUiStore } from "../stores/uiStore";
 import { useBlogs } from "../hooks/queries/useBlogs";
-
 import EmptyState from "../components/ui/EmptyState";
 import SearchBar from "../components/ui/SearchBar";
 import ErrorState from "../components/ui/ErrorState";
 import TagFilter from "../components/ui/TagFilter";
+import FeedSortTabs from "../components/ui/FeedSortTabs";
 import { BlogListSkeleton } from "../components/ui/skeletons/BlogSkeleton";
-
 const BlogPage = () => {
   const { data: blogs = [], isPending, isError, refetch } = useBlogs();
   const {
@@ -26,10 +27,12 @@ const BlogPage = () => {
     activeTag,
     setActiveTag,
     clearActiveTag,
+    feedSort,
+    setFeedSort,
   } = useUiStore();
   const navigate = useNavigate();
 
-  const sortedBlogs = sortByLikes(blogs);
+  const sortedBlogs = rankBlogs(blogs, feedSort);
   const allTags = getAllTags(blogs);
   const afterSearch = blogSearch
     ? filterBySearch(sortedBlogs, blogSearch)
@@ -90,6 +93,7 @@ const BlogPage = () => {
           onClear={clearBlogSearch}
           placeholder="Search by title, author, or URL..."
         />
+        <FeedSortTabs value={feedSort} onChange={setFeedSort} />
         <TagFilter
           tags={allTags}
           activeTag={activeTag}
@@ -121,6 +125,8 @@ const BlogPage = () => {
         onClear={clearBlogSearch}
         placeholder="Search by title, author, or URL..."
       />
+
+      <FeedSortTabs value={feedSort} onChange={setFeedSort} />
 
       <TagFilter
         tags={allTags}
@@ -173,7 +179,7 @@ const BlogPage = () => {
                 )}
                 <small className="text-muted">
                   <FiUser className="me-1" />
-                  {blog.author}
+                  {blog.author} · {timeAgo(getBlogDate(blog))}
                 </small>
                 {blog.tags?.length > 0 && (
                   <div className="d-flex flex-wrap gap-1 mt-1">

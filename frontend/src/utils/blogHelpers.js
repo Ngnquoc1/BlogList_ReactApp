@@ -7,15 +7,45 @@ export const sortByLikes = (blogs) => {
   return [...blogs].sort((a, b) => b.likes - a.likes);
 };
 
+export const getBlogDate = (blog) => {
+  if (blog.createdAt) return new Date(blog.createdAt).getTime();
+  if (blog.id) return parseInt(blog.id.substring(0, 8), 16) * 1000;
+  return 0;
+};
+
+export const timeAgo = (ts) => {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return `${Math.floor(d / 30)}mo ago`;
+};
+
 /**
  * Sort blogs by date (newest first)
  * @param {Array} blogs - Array of blog objects
  * @returns {Array} - Sorted array of blogs
  */
-export const sortByDate = (blogs) => {
-  return [...blogs].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-  );
+export const sortByDate = (blogs) =>
+  [...blogs].sort((a, b) => getBlogDate(b) - getBlogDate(a));
+
+export const sortByHot = (blogs) => {
+  const now = Date.now();
+  const score = (blog) => {
+    const ageHours = (now - getBlogDate(blog)) / 3_600_000;
+    return (blog.likes + 1) / Math.pow(ageHours + 2, 1.5);
+  };
+  return [...blogs].sort((a, b) => score(b) - score(a));
+};
+// dispatcher: chọn cách sort theo feedSort
+export const rankBlogs = (blogs, sort) => {
+  if (sort === "top") return sortByLikes(blogs);
+  if (sort === "new") return sortByDate(blogs);
+  return sortByHot(blogs); // mặc định "hot"
 };
 
 /**
