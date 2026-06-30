@@ -103,28 +103,22 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
     });
   }
 
-  // Allow update for like functionality (no auth check for likes)
-  // But check auth for other updates
-  const isLikeOnly =
-    body.likes !== undefined &&
-    blog.title === body.title &&
-    blog.author === body.author &&
-    blog.url === body.url;
-
-  if (!isLikeOnly && blog.user.toString() !== user._id.toString()) {
-    return response.status(HTTP_STATUS.UNAUTHORIZED).json({
-      error: ERROR_MESSAGES.UNAUTHORIZED_UPDATE,
-    });
+  if (blog.user.toString() !== user._id.toString()) {
+    return response
+      .status(HTTP_STATUS.UNAUTHORIZED)
+      .json({ error: ERROR_MESSAGES.UNAUTHORIZED_UPDATE });
   }
+
   if (body.url && body.url !== blog.url) {
     const newPreview = await fetchLinkPreview(body.url);
     if (newPreview) blog.preview = newPreview;
   }
+
   if (body.tags !== undefined) blog.tags = sanitizeTags(body.tags);
+
   blog.title = body.title;
   blog.author = body.author;
   blog.url = body.url;
-  blog.likes = body.likes;
 
   const updatedBlog = await blog.save();
   await updatedBlog.populate("user", { username: 1, name: 1 });
@@ -166,6 +160,30 @@ blogsRouter.post("/:id/comments", async (request, response) => {
   await savedBlog.populate("user", { username: 1, name: 1 });
 
   response.status(HTTP_STATUS.CREATED).json(savedBlog);
+});
+
+blogsRouter.put("/:id/like", userExtractor, async (request, response) => {
+  const blog = await Blog.findById(request.params.id);
+  if (!blog) {
+    return response
+      .status(HTTP_STATUS.NOT_FOUND)
+      .json({ error: ERROR_MESSAGES.BLOG_NOT_FOUND });
+  }
+
+  const userId = request.user._id;
+  const already = blog.likedBy.some(
+    (id) => id.toString() === userId.toString(),
+  );
+
+  blog.likedBy = already
+    ? blog.likedBy.filter((id) => id.toString() !== userId.toString())
+    : blog.likedBy.concat(userId);
+
+  blog.likes = blog.likedBy.length; // đồng bộ số đếm
+
+  const saved = await blog.save();
+  await saved.populate("user", { username: 1, name: 1 });
+  response.json(saved);
 });
 
 module.exports = blogsRouter;

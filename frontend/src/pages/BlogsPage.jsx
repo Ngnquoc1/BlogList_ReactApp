@@ -11,6 +11,7 @@ import {
   getBlogDate,
 } from "../utils/blogHelpers";
 import { useUiStore } from "../stores/uiStore";
+import { useAuth } from "../context/AuthContext";
 import { useBlogs } from "../hooks/queries/useBlogs";
 import EmptyState from "../components/ui/EmptyState";
 import SearchBar from "../components/ui/SearchBar";
@@ -31,6 +32,7 @@ const BlogPage = () => {
     setFeedSort,
   } = useUiStore();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const sortedBlogs = rankBlogs(blogs, feedSort);
   const allTags = getAllTags(blogs);
@@ -191,8 +193,17 @@ const BlogPage = () => {
                   </div>
                 )}
               </div>
-              <Badge bg="primary" pill className="flex-shrink-0">
-                <FiHeart className="me-1" />
+              <Badge
+                bg={blog.likedBy?.includes(user?.id) ? "danger" : "primary"}
+                pill
+                className="flex-shrink-0"
+              >
+                <FiHeart
+                  className="me-1"
+                  fill={
+                    blog.likedBy?.includes(user?.id) ? "currentColor" : "none"
+                  }
+                />
                 {blog.likes}
               </Badge>
             </motion.div>

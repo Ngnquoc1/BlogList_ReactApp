@@ -40,6 +40,7 @@ const BlogDetailPage = () => {
   const likeBlog = useLikeBlog();
   const deleteBlog = useDeleteBlog();
   const addComment = useAddComment();
+  const isLiked = blog?.likedBy?.includes(loginUser?.id);
 
   const handleLike = () => {
     setIsLiking(true);
@@ -146,9 +147,16 @@ const BlogDetailPage = () => {
               </Badge>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="outline-primary" size="sm" onClick={handleLike}>
-                <FiHeart className="me-1" />
-                Like
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={handleLike}
+              >
+                <FiHeart
+                  className="me-1"
+                  fill={isLiked ? "currentColor" : "none"}
+                />
+                {isLiked ? "Liked" : "Like"}
               </Button>
             </motion.div>
             <ShareButton blog={blog} />
