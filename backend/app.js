@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 
 const config = require("./utils/config");
 const logger = require("./utils/logger");
+const path = require("path");
 
 const {
   requestLogger,
@@ -42,6 +43,9 @@ app.use(tokenExtractor);
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
+app.get(/^(?!\/api).*/, (request, response) => {
+  response.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 if (process.env.NODE_ENV === ENVIRONMENTS.TEST) {
   const testingRouter = require("./controller/testing");
