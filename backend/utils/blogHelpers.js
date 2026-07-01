@@ -1,5 +1,5 @@
-const Blog = require('../models/blog')
-const { HTTP_STATUS, ERROR_MESSAGES } = require('./constants')
+const Blog = require("../models/blog");
+const { HTTP_STATUS, ERROR_MESSAGES } = require("./constants");
 
 /**
  * Find blog by ID and populate user
@@ -7,10 +7,8 @@ const { HTTP_STATUS, ERROR_MESSAGES } = require('./constants')
  * @returns {Promise<Object|null>} Blog object or null
  */
 const findBlogById = async (id) => {
-  return await Blog
-    .findById(id)
-    .populate('user', { username: 1, name: 1 })
-}
+  return await Blog.findById(id).populate("user", { username: 1, name: 1 });
+};
 
 /**
  * Find blog by ID or throw 404 error
@@ -19,17 +17,17 @@ const findBlogById = async (id) => {
  * @returns {Promise<Object|null>} Blog object or sends 404 response
  */
 const findBlogOrFail = async (id, response) => {
-  const blog = await findBlogById(id)
-  
+  const blog = await findBlogById(id);
+
   if (!blog) {
-    response.status(HTTP_STATUS.NOT_FOUND).json({ 
-      error: ERROR_MESSAGES.BLOG_NOT_FOUND 
-    })
-    return null
+    response.status(HTTP_STATUS.NOT_FOUND).json({
+      error: ERROR_MESSAGES.BLOG_NOT_FOUND,
+    });
+    return null;
   }
-  
-  return blog
-}
+
+  return blog;
+};
 
 /**
  * Check if user owns the blog
@@ -38,8 +36,8 @@ const findBlogOrFail = async (id, response) => {
  * @returns {boolean} True if user owns the blog
  */
 const isOwner = (blog, user) => {
-  return blog.user.toString() === user._id.toString()
-}
+  return blog.user.toString() === user._id.toString();
+};
 
 /**
  * Check authorization for blog update
@@ -50,13 +48,13 @@ const isOwner = (blog, user) => {
  */
 const checkOwnership = (blog, user, response) => {
   if (!isOwner(blog, user)) {
-    response.status(HTTP_STATUS.UNAUTHORIZED).json({ 
-      error: ERROR_MESSAGES.UNAUTHORIZED_UPDATE 
-    })
-    return false
+    response.status(HTTP_STATUS.UNAUTHORIZED).json({
+      error: ERROR_MESSAGES.UNAUTHORIZED_UPDATE,
+    });
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 /**
  * Format blog for response
@@ -71,14 +69,14 @@ const formatBlogResponse = (blog) => {
     url: blog.url,
     likes: blog.likes,
     comments: blog.comments || [],
-    user: blog.user
-  }
-}
+    user: blog.user,
+  };
+};
 
 module.exports = {
   findBlogById,
   findBlogOrFail,
   isOwner,
   checkOwnership,
-  formatBlogResponse
-}
+  formatBlogResponse,
+};

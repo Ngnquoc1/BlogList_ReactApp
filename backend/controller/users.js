@@ -1,37 +1,46 @@
-const usersRouter = require('express').Router()
-const bcrypt = require('bcrypt')
-const User = require('../models/user')
-const { HTTP_STATUS, ERROR_MESSAGES, VALIDATION_RULES } = require('../utils/constants')
-const { validateUserRegistration } = require('../utils/validation')
+const usersRouter = require("express").Router();
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const {
+  HTTP_STATUS,
+  ERROR_MESSAGES,
+  VALIDATION_RULES,
+} = require("../utils/constants");
+const { validateUserRegistration } = require("../utils/validation");
 
-usersRouter.get('/', async (request, response) => {
-    const users = await User
-        .find({})
-        .populate('blogs', { title: 1, author: 1, url: 1 });
-    response.json(users)
-})
+usersRouter.get("/", async (request, response) => {
+  const users = await User.find({}).populate("blogs", {
+    title: 1,
+    author: 1,
+    url: 1,
+  });
+  response.json(users);
+});
 
-usersRouter.post('/', async (request, response) => {
-  const { username, name, password } = request.body
+usersRouter.post("/", async (request, response) => {
+  const { username, name, password } = request.body;
 
   // Validate user data
-  const validation = validateUserRegistration({ username, password })
+  const validation = validateUserRegistration({ username, password });
   if (!validation.isValid) {
-    return response.status(HTTP_STATUS.BAD_REQUEST).json({ 
-      error: validation.errors.join(', ') 
-    })
+    return response.status(HTTP_STATUS.BAD_REQUEST).json({
+      error: validation.errors.join(", "),
+    });
   }
 
-  const passwordHash = await bcrypt.hash(password, VALIDATION_RULES.SALT_ROUNDS)
+  const passwordHash = await bcrypt.hash(
+    password,
+    VALIDATION_RULES.SALT_ROUNDS,
+  );
 
   const newUser = new User({
     username,
     name,
-    passwordHash
-  })
+    passwordHash,
+  });
 
-  const savedUser = await newUser.save()
-  response.status(HTTP_STATUS.CREATED).json(savedUser)
-})
+  const savedUser = await newUser.save();
+  response.status(HTTP_STATUS.CREATED).json(savedUser);
+});
 
-module.exports = usersRouter
+module.exports = usersRouter;
