@@ -16,10 +16,15 @@ blogsRouter.get("/", async (request, response) => {
 });
 
 blogsRouter.get("/:id", async (request, response) => {
-  const blog = await Blog.findById(request.params.id).populate("user", {
-    username: 1,
-    name: 1,
-  });
+  const blog = await Blog.findById(request.params.id)
+    .populate("user", {
+      username: 1,
+      name: 1,
+    })
+    .populate({
+      path: "comments.user",
+      select: "username name",
+    });
 
   if (blog) {
     response.json(blog);
@@ -41,18 +46,24 @@ blogsRouter.post("/", userExtractor, async (request, response) => {
       error: validation.errors.join(", "),
     });
   }
+  const type = body.type === "article" ? "article" : "link";
 
   // Sanitize blog data
   const sanitized = sanitizeBlog(body);
 
-  const preview = await fetchLinkPreview(sanitized.url);
+  let preview;
+  if (type === "link" && sanitized.url) {
+    preview = await fetchLinkPreview(sanitized.url);
+  }
 
   const blog = new Blog({
     title: sanitized.title,
     author: sanitized.author,
-    url: sanitized.url,
+    url: sanitized.url, // undefined cũng được với article
     likes: sanitized.likes,
-    type: "link",
+    type,
+    content: type === "article" ? sanitized.content : undefined,
+    coverUrl: type === "article" ? sanitized.coverUrl : undefined,
     tags: sanitized.tags,
     preview: preview || undefined,
     user: user._id,
@@ -116,6 +127,11 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
 
   if (body.tags !== undefined) blog.tags = sanitizeTags(body.tags);
 
+  if (blog.type === "article") {
+    blog.content = body.content;
+    blog.coverUrl = body.coverUrl;
+  }
+
   blog.title = body.title;
   blog.author = body.author;
   blog.url = body.url;
@@ -127,7 +143,10 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
 });
 
 blogsRouter.get("/:id/comments", async (request, response) => {
-  const blog = await Blog.findById(request.params.id, { comments: 1 });
+  const blog = await Blog.findById(request.params.id, { comments: 1 }).populate(
+    "user",
+    { username: 1, name: 1 },
+  );
 
   if (blog) {
     response.json(blog.toJSON());
@@ -138,7 +157,7 @@ blogsRouter.get("/:id/comments", async (request, response) => {
   }
 });
 
-blogsRouter.post("/:id/comments", async (request, response) => {
+blogsRouter.post("/:id/comments", userExtractor, async (request, response) => {
   const body = request.body;
   const blog = await Blog.findById(request.params.id);
 
@@ -148,19 +167,53 @@ blogsRouter.post("/:id/comments", async (request, response) => {
     });
   }
 
-  if (!body.comment || body.comment.trim().length === 0) {
+  const text = body.comment?.trim();
+  if (!text) {
     return response.status(HTTP_STATUS.BAD_REQUEST).json({
       error: "comment cannot be empty",
     });
   }
 
-  blog.comments = blog.comments.concat(body.comment.trim());
+  blog.comments = blog.comments.concat({ text, user: request.user._id });
 
   const savedBlog = await blog.save();
-  await savedBlog.populate("user", { username: 1, name: 1 });
+  await savedBlog.populate("comments.user", { username: 1, name: 1 });
 
   response.status(HTTP_STATUS.CREATED).json(savedBlog);
 });
+
+blogsRouter.delete(
+  "/:id/comments/:commentId",
+  userExtractor,
+  async (request, response) => {
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: ERROR_MESSAGES.BLOG_NOT_FOUND });
+    }
+
+    const comment = blog.comments.id(request.params.commentId);
+    if (!comment) {
+      return response
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: "comment not found" });
+    }
+
+    if (comment.user.toString() !== request.user._id.toString()) {
+      return response
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ error: "not authorized to delete this comment" });
+    }
+
+    blog.comments.pull(request.params.commentId);
+
+    const saved = await blog.save();
+    await saved.populate("user", { username: 1, name: 1 });
+    await saved.populate("comments.user", { username: 1, name: 1 });
+    response.json(saved);
+  },
+);
 
 blogsRouter.put("/:id/like", userExtractor, async (request, response) => {
   const blog = await Blog.findById(request.params.id);

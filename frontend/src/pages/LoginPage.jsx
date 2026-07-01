@@ -3,7 +3,7 @@ import { FiMail, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useField } from "../hooks/useForm";
 import { useLogin } from "../hooks/queries/useLogin";
-
+import { Link } from "react-router-dom";
 const LoginPage = () => {
   const username = useField("text");
   const password = useField("password");
@@ -58,6 +58,12 @@ const LoginPage = () => {
                 <Button variant="primary" type="submit" className="w-100">
                   Login
                 </Button>
+                <div className="text-center mt-3">
+                  <small>
+                    Don&apos;t have an account?{" "}
+                    <Link to="/signup">Sign up</Link>
+                  </small>
+                </div>
               </Form>
             </Card.Body>
           </Card>

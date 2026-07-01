@@ -9,6 +9,9 @@ import {
   rankBlogs,
   timeAgo,
   getBlogDate,
+  getCardImage,
+  getCardExcerpt,
+  readingTime,
 } from "../utils/blogHelpers";
 import { useUiStore } from "../stores/uiStore";
 import { useAuth } from "../context/AuthContext";
@@ -68,7 +71,7 @@ const BlogPage = () => {
         title="No Blogs Yet"
         message="Be the first to create a blog post and share your thoughts with the community!"
         actionLabel="Create First Blog"
-        onAction={() => navigate("/")}
+        onAction={() => navigate("/create")}
       />
     );
   }
@@ -156,9 +159,9 @@ const BlogPage = () => {
               className="d-flex align-items-center gap-3"
               style={{ width: "100%" }}
             >
-              {blog.preview?.image && (
+              {getCardImage(blog) && (
                 <img
-                  src={blog.preview.image}
+                  src={getCardImage(blog)}
                   alt=""
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
@@ -174,14 +177,16 @@ const BlogPage = () => {
               )}
               <div className="flex-grow-1" style={{ minWidth: 0 }}>
                 <h5 className="mb-1 text-truncate">{blog.title}</h5>
-                {blog.preview?.description && (
+                {getCardExcerpt(blog) && (
                   <p className="mb-1 text-muted small text-truncate">
-                    {blog.preview.description}
+                    {getCardExcerpt(blog)}
                   </p>
                 )}
                 <small className="text-muted">
                   <FiUser className="me-1" />
                   {blog.author} · {timeAgo(getBlogDate(blog))}
+                  {blog.type === "article" &&
+                    ` · ${readingTime(blog.content)} min read`}
                 </small>
                 {blog.tags?.length > 0 && (
                   <div className="d-flex flex-wrap gap-1 mt-1">

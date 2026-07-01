@@ -1,6 +1,6 @@
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { FiFileText, FiLogOut } from "react-icons/fi";
+import { FiFileText, FiLogOut, FiPlus } from "react-icons/fi";
 import Avatar from "../ui/Avatar";
 import ThemeToggle from "../ui/ThemeToggle";
 import { useAuth } from "../../context/AuthContext";
@@ -29,11 +29,12 @@ const AppNavbar = () => {
           />
           <span style={{ verticalAlign: "middle" }}>BlogList</span>
         </Navbar.Brand>
+
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/blogs">
-              Blogs
+            <Nav.Link as={Link} to="/">
+              Home
             </Nav.Link>
             <Nav.Link as={Link} to="/users">
               Users
@@ -43,12 +44,24 @@ const AppNavbar = () => {
             </Nav.Link>
           </Nav>
           <Nav className="align-items-center gap-2">
+            <Button as={Link} to="/create" variant="primary" size="sm">
+              <FiPlus className="me-1" />
+              Create
+            </Button>
             <ThemeToggle />
             <div className="d-flex align-items-center">
-              <Avatar username={loginUser.username} size="sm" className="me-2" />
+              <Avatar
+                username={loginUser.username}
+                size="sm"
+                className="me-2"
+              />
               <span className="fw-medium">{loginUser.name}</span>
             </div>
-            <Button variant="outline-secondary" size="sm" onClick={handleLogout}>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={handleLogout}
+            >
               <FiLogOut className="me-1" />
               Logout
             </Button>

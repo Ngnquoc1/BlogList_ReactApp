@@ -41,15 +41,21 @@ const validatePassword = (password) => {
  */
 const validateBlog = (blogData) => {
   const errors = [];
+  const type = blogData.type === "article" ? "article" : "link";
 
   if (!blogData.title || blogData.title.trim().length === 0) {
     errors.push("title is required");
   }
 
-  if (!blogData.url || blogData.url.trim().length === 0) {
-    errors.push("url is required");
-  } else if (!/^https?:\/\//i.test(blogData.url.trim())) {
-    errors.push("url must start with http:// or https://");
+  if (type === "link") {
+    if (!blogData.url || !blogData.url.trim()) {
+      errors.push("url is required");
+    } else if (!/^https?:\/\//i.test(blogData.url.trim())) {
+      errors.push("url must start with http:// or https://");
+    }
+  } else {
+    if (!blogData.content || !blogData.content.trim())
+      errors.push("content is required for articles");
   }
 
   return {
@@ -118,6 +124,8 @@ const sanitizeTags = (tags) => {
 const sanitizeBlog = (blogData) => {
   return {
     title: blogData.title?.trim(),
+    content: blogData.content?.trim(),
+    coverUrl: blogData.coverUrl?.trim(),
     author: blogData.author?.trim() || "Anonymous",
     url: blogData.url?.trim(),
     likes: blogData.likes || 0,

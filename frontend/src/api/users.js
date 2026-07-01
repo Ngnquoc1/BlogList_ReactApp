@@ -4,6 +4,12 @@ const getAll = async () => {
   const { data } = await apiClient.get("/users");
   return data;
 };
+const register = async (credentials) => {
+  const { data } = await apiClient.post("/users", credentials);
+  return data;
+};
+export default { getAll, register };
+
 // const create = async (newObject) => {
 //   const config = {
 //     headers: { Authorization: token },
@@ -31,4 +37,3 @@ const getAll = async () => {
 //   const response = await axios.put(`${baseUrl}/${id}`, newObject, config)
 //   return response.data
 // }
-export default { getAll };

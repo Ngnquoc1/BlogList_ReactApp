@@ -169,3 +169,26 @@ export const filterByTag = (blogs, tag) => {
   if (!tag) return blogs;
   return blogs.filter((blog) => (blog.tags || []).includes(tag));
 };
+
+export const readingTime = (content = "") => {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200)); // ~200 từ/phút
+};
+
+export const excerpt = (content = "", max = 140) => {
+  const plain = content
+    .replace(/```[\s\S]*?```/g, " ") // bỏ code block
+    .replace(/`[^`]*`/g, " ") // bỏ inline code
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // bỏ ảnh
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // link -> giữ chữ
+    .replace(/[#>*_~`-]/g, " ") // bỏ ký hiệu md
+    .replace(/\s+/g, " ")
+    .trim();
+  return plain.length > max ? plain.slice(0, max).trimEnd() + "…" : plain;
+};
+// Ảnh & mô tả cho card, thống nhất link vs article
+export const getCardImage = (blog) =>
+  blog.type === "article" ? blog.coverUrl : blog.preview?.image;
+
+export const getCardExcerpt = (blog) =>
+  blog.type === "article" ? excerpt(blog.content) : blog.preview?.description;

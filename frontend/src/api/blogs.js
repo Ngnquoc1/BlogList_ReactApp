@@ -24,8 +24,22 @@ const comment = async (id, comment) => {
   const { data } = await apiClient.post(`/blogs/${id}/comments`, { comment });
   return data;
 };
+const deleteComment = async (id, commentId) => {
+  const { data } = await apiClient.delete(`/blogs/${id}/comments/${commentId}`);
+  return data;
+};
+
 const like = async (id) => {
   const { data } = await apiClient.put(`/blogs/${id}/like`);
   return data;
 };
-export default { getAll, getById, create, remove, update, comment, like };
+export default {
+  getAll,
+  getById,
+  create,
+  remove,
+  update,
+  comment,
+  like,
+  deleteComment,
+};

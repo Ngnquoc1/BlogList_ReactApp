@@ -4,11 +4,24 @@ const blogSchema = mongoose.Schema(
   {
     title: { type: String, required: true },
     author: String,
-    url: { type: String, required: true },
+    url: {
+      type: String,
+      required: function () {
+        return this.type === "link"; // chỉ link mới bắt buộc url
+      },
+    },
     likes: { type: Number, default: 0 },
     likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    content: String, // markdown, cho article
+    coverUrl: String, // ảnh bìa article (optional)
+    comments: [
+      {
+        text: { type: String, required: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
 
-    comments: [String],
     tags: {
       type: [String],
       default: [],

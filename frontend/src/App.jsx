@@ -1,21 +1,19 @@
 import LoginForm from "./pages/LoginPage";
-import CreateBlogForm from "./components/blog/CreateBlogForm";
 import BlogList from "./pages/BlogsPage";
 import Blog from "./pages/BlogDetailPage";
 import Users from "./pages/UsersPage";
 import User from "./pages/UserDetailPage";
 import BlogStats from "./pages/StatsPage";
-import Tooglable from "./components/ui/Tooglable";
-import ProtectedRoute from "./components/ProtectedRoute";
+import SignupPage from "./pages/SignupPage";
+import CreateBlogForm from "./components/blog/CreateBlogForm";
 import PageWrapper from "./components/ui/PageWrapper";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./components/layout/AppLayout";
 import { useAuth } from "./context/AuthContext";
-import { useRef } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 const App = () => {
-  const createBlogRef = useRef();
   const location = useLocation();
 
   const { user: loginUser } = useAuth();
@@ -41,31 +39,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <PageWrapper>
-                  <Tooglable
-                    buttonLabel1="Create New Blog"
-                    buttonLabel2="Cancel"
-                    ref={createBlogRef}
-                  >
-                    <CreateBlogForm
-                      toggleVisibility={() =>
-                        createBlogRef.current.toggleVisibility()
-                      }
-                    />
-                  </Tooglable>
-                </PageWrapper>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/blogs"
-            element={
-              <ProtectedRoute>
-                <PageWrapper>
                   <BlogList />
                 </PageWrapper>
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <PageWrapper>
+                  <CreateBlogForm />
+                </PageWrapper>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/blogs" element={<Navigate to="/" replace />} />
           <Route
             path="/users"
             element={
@@ -106,6 +95,19 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/signup"
+            element={
+              !loginUser ? (
+                <PageWrapper>
+                  <SignupPage />
+                </PageWrapper>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
