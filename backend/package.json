@@ -7,7 +7,6 @@
     "dev": "cross-env NODE_ENV=development node --watch index.js",
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
     "start:test": "cross-env NODE_ENV=test node --watch index.js"
   },
   "keywords": [],
@@ -21,6 +20,8 @@
     "dotenv": "^17.2.1",
     "express": "^4.21.1",
     "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.2",
     "open-graph-scraper": "^6.12.0"

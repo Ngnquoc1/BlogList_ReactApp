@@ -6,7 +6,8 @@ const { VALIDATION_RULES, ERROR_MESSAGES } = require("./constants");
  * @returns {object} - { isValid: boolean, error: string }
  */
 const validateUsername = (username) => {
-  if (!username) {
+  // Reject non-strings: a JSON body can smuggle a Mongo operator object here.
+  if (typeof username !== "string" || !username) {
     return { isValid: false, error: ERROR_MESSAGES.USERNAME_REQUIRED };
   }
 
@@ -23,7 +24,7 @@ const validateUsername = (username) => {
  * @returns {object} - { isValid: boolean, error: string }
  */
 const validatePassword = (password) => {
-  if (!password) {
+  if (typeof password !== "string" || !password) {
     return { isValid: false, error: ERROR_MESSAGES.PASSWORD_REQUIRED };
   }
 
@@ -96,11 +97,12 @@ const validateUserRegistration = (userData) => {
 const validateLogin = (loginData) => {
   const errors = [];
 
-  if (!loginData.username) {
+  // typeof guards stop `{"username": {"$ne": null}}` reaching User.findOne()
+  if (typeof loginData.username !== "string" || !loginData.username) {
     errors.push("username is required");
   }
 
-  if (!loginData.password) {
+  if (typeof loginData.password !== "string" || !loginData.password) {
     errors.push("password is required");
   }
 

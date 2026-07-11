@@ -1,6 +1,7 @@
 const logger = require('./logger')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const config = require('./config')
 const {
   HTTP_STATUS,
   ERROR_MESSAGES,
@@ -33,7 +34,7 @@ const tokenExtractor = (request, response, next) => {
 
 const userExtractor = async (request, response, next) => {
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    const decodedToken = jwt.verify(request.token, config.SECRET)
 
     if (!decodedToken?.id || !request.token) {
       return response.status(HTTP_STATUS.UNAUTHORIZED).json({ 

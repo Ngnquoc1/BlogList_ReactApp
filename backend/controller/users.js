@@ -7,6 +7,7 @@ const {
   VALIDATION_RULES,
 } = require("../utils/constants");
 const { validateUserRegistration } = require("../utils/validation");
+const { registerLimiter } = require("../utils/rateLimit");
 
 usersRouter.get("/", async (request, response) => {
   const users = await User.find({}).populate("blogs", {
@@ -17,7 +18,7 @@ usersRouter.get("/", async (request, response) => {
   response.json(users);
 });
 
-usersRouter.post("/", async (request, response) => {
+usersRouter.post("/", registerLimiter, async (request, response) => {
   const { username, name, password } = request.body;
 
   // Validate user data
