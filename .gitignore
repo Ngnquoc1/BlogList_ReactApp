@@ -6,6 +6,12 @@ node_modules/
 .env.local
 .env.*.local
 
+# Test artifacts
+test/playwright-report/
+test/test-results/
+frontend/cypress/videos/
+frontend/cypress/screenshots/
+
 # Logs
 *.log
 npm-debug.log*
@@ -14,3 +20,5 @@ npm-debug.log*
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+
+docs/
