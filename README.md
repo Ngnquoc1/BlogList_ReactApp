@@ -5,6 +5,7 @@
 **A full-stack blogging & bookmarking platform — bookmark links with auto-generated previews, or publish Markdown articles, then like, comment, tag, and rank them.**
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-online-2ea44f?style=flat)](https://bloglist-reactapp.onrender.com)
+[![CI](https://github.com/Ngnquoc1/BlogList_ReactApp/actions/workflows/ci.yml/badge.svg)](https://github.com/Ngnquoc1/BlogList_ReactApp/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
@@ -236,14 +237,14 @@ All routes are prefixed with `/api`. Endpoints marked 🔒 require an `Authoriza
 
 ## Testing
 
-The repository contains an API suite (Jest + Supertest) and an end-to-end suite (Playwright).
+The repository contains an API suite (Jest + Supertest) and an end-to-end suite (Playwright). Every push and pull request runs the API tests and a frontend lint + build through [GitHub Actions](.github/workflows/ci.yml).
 
 **API tests** run against an isolated database — the app refuses to start under `NODE_ENV=test` unless a distinct `TEST_MONGODB_URI` is set, so tests can never touch production data.
 
 ```bash
 cd backend
-npm install --save-dev jest    # jest is not yet in devDependencies
-npm test
+npm install
+npm test        # 24 tests across blogs and users endpoints
 ```
 
 **End-to-end** drives the backend in test mode (which exposes `/api/testing/reset`) and loads the app from the built frontend:
@@ -253,7 +254,7 @@ cd backend && npm run build:ui && npm run start:test   # terminal 1
 cd test && npm install && npx playwright install && npm test
 ```
 
-> **Status:** the E2E specs predate the current UI redesign and are being updated to match it. See the [roadmap](#roadmap).
+> **Status:** the API suite is green in CI. The end-to-end specs predate the current UI redesign and are being updated to match it — see the [roadmap](#roadmap).
 
 ---
 
@@ -269,17 +270,6 @@ Deployed to **Render** as a single web service: the build compiles the frontend 
 | Environment    | `MONGODB_URI`, `SECRET` (Render provides `PORT`)                                                                               |
 
 MongoDB Atlas must allow Render's IPs — on the free tier, allow `0.0.0.0/0` under Network Access.
-
----
-
-## Roadmap
-
-- [ ] Update the Playwright E2E suite and add frontend component tests
-- [ ] GitHub Actions CI (lint + test on every push)
-- [ ] Server-side pagination, sorting, and search
-- [ ] Save-for-later (private bookmarks) and duplicate-URL detection
-- [ ] User profiles with avatars
-- [ ] SSRF hardening on server-side URL fetching; httpOnly-cookie auth with refresh tokens
 
 ---
 
