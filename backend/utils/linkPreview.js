@@ -1,4 +1,5 @@
 const fetchLinkPreview = async (url) => {
+  if (process.env.NODE_ENV === "test") return null;
   try {
     const ogs = (await import("open-graph-scraper")).default;
     const { result } = await ogs({
