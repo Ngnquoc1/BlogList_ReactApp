@@ -4,14 +4,17 @@ import { FiFileText, FiLogOut, FiPlus } from "react-icons/fi";
 import Avatar from "../ui/Avatar";
 import ThemeToggle from "../ui/ThemeToggle";
 import { useAuth } from "../../context/AuthContext";
+import { useLogout } from "../../hooks/queries/useLogout";
 
 const AppNavbar = () => {
   const navigate = useNavigate();
-  const { user: loginUser, logout } = useAuth();
+  const { user: loginUser } = useAuth();
+  const logoutMutation = useLogout();
 
   const handleLogout = () => {
-    logout();
-    navigate("/login");
+    logoutMutation.mutate(undefined, {
+      onSettled: () => navigate("/login"), // điều hướng do component lo
+    });
   };
 
   return (

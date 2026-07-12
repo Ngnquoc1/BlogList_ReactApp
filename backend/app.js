@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const helmet = require("helmet");
 const cors = require("cors");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 
 const config = require("./utils/config");
 const logger = require("./utils/logger");
@@ -21,6 +22,7 @@ const { loginLimiter } = require("./utils/rateLimit");
 const blogsRouter = require("./controller/blogs");
 const usersRouter = require("./controller/users");
 const loginRouter = require("./controller/login");
+const authRouter = require("./controller/auth");
 
 const { ENVIRONMENTS } = require("./utils/constants");
 
@@ -67,6 +69,7 @@ app.use(
 const corsOrigin = process.env.CORS_ORIGIN;
 app.use(cors({ origin: corsOrigin ? corsOrigin.split(",") : false }));
 
+app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("dist"));
 
@@ -76,6 +79,7 @@ app.use(tokenExtractor);
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginLimiter, loginRouter);
+app.use("/api/auth", authRouter);
 
 if (process.env.NODE_ENV === ENVIRONMENTS.TEST) {
   const testingRouter = require("./controller/testing");

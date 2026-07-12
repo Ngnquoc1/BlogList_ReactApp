@@ -2,26 +2,31 @@ import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: "/api",
+  withCredentials: true,
 });
 
-apiClient.interceptors.request.use((config) => {
-  const stored = window.localStorage.getItem("loggedBlogAppUser");
-  if (stored) {
-    const { token } = JSON.parse(stored);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+let refreshing = null;
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      window.localStorage.removeItem("loggedBlogAppUser");
-      if (window.location.pathname !== "/login") {
-        window.location.assign("/login"); // token hết hạn → đăng xuất
+  async (error) => {
+    const original = error.config;
+    const noRetry =
+      original?.url?.includes("/auth/") || original?.url?.includes("/login");
+
+    if (error.response?.status === 401 && !original?._retry && !noRetry) {
+      original._retry = true;
+      try {
+        refreshing = refreshing || apiClient.post("/auth/refresh");
+        await refreshing;
+        refreshing = null;
+        return apiClient(original); // thử lại request cũ với access token mới
+      } catch (e) {
+        refreshing = null;
+        window.localStorage.removeItem("loggedBlogAppUser");
+        if (window.location.pathname !== "/login")
+          window.location.assign("/login");
+        return Promise.reject(e);
       }
     }
     return Promise.reject(error);

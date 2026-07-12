@@ -3,5 +3,7 @@ const login = async (credentials) => {
   const { data } = await apiClient.post("/login", credentials);
   return data;
 };
-
-export default { login };
+const logout = async () => {
+  await apiClient.post("/auth/logout");
+};
+export default { login, logout };
