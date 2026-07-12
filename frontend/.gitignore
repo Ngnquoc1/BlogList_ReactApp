@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Redux Toolkit code kept locally for study only — not part of the app, not on GitHub
+src/reducers/
+src/store.js
+src/components/LoginInfo.jsx
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

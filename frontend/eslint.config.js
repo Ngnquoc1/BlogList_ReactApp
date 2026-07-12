@@ -7,7 +7,19 @@ import reactRefresh from "eslint-plugin-react-refresh";
 export default [
   // Cypress E2E suite is stale (predates the UI redesign) and runs on its own
   // runner with cypress globals; exclude it from the app lint until it is rewritten.
-  { ignores: ["dist", "Cypress/**", "cypress/**", "cypress.config.js"] },
+  // The Redux files are kept locally for reference only (not wired into the app,
+  // git-ignored) — exclude them so lint/CI don't fail on unused legacy code.
+  {
+    ignores: [
+      "dist",
+      "Cypress/**",
+      "cypress/**",
+      "cypress.config.js",
+      "src/reducers/**",
+      "src/store.js",
+      "src/components/LoginInfo.jsx",
+    ],
+  },
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
