@@ -32,7 +32,6 @@
 - [API Reference](#api-reference)
 - [Testing](#testing)
 - [Deployment](#deployment)
-- [Roadmap](#roadmap)
 - [License](#license)
 - [Author](#author)
 
@@ -78,7 +77,7 @@ Both types share one feed that users can search, filter by tag, and rank by **Ho
 
 **Accounts & UX**
 
-- Sign up / log in with JWT; protected routes; automatic logout on token expiry.
+- Sign up / log in with httpOnly-cookie sessions; protected routes; access tokens refresh in the background so sessions don't drop mid-use.
 - System-aware dark / light theme with no flash on first paint.
 - Optimistic UI — likes and comments apply instantly and roll back on error.
 
@@ -86,7 +85,9 @@ Both types share one feed that users can search, filter by tag, and rank by **Ho
 
 ## Security
 
-- **JWT + bcrypt** authentication; passwords are never stored in plaintext.
+- **httpOnly-cookie auth with refresh-token rotation** — a short-lived access token (15 min) and a long-lived refresh token (7 days) are delivered as `httpOnly`, `SameSite=Strict` cookies, so JavaScript (and therefore any XSS) can never read them. Refresh tokens are stored **hashed**, rotated on every use, and replaying an already-rotated token revokes the whole token family — a stolen token is detected and cut off.
+- **bcrypt** password hashing; passwords are never stored in plaintext.
+- **SSRF hardening** — before fetching a link preview the server validates the URL: `http(s)` only, no embedded credentials, and the host is DNS-resolved and rejected if it maps to a private, loopback, or link-local address (e.g. the cloud-metadata endpoint `169.254.169.254`).
 - **Helmet** with a tailored Content-Security-Policy.
 - **Rate limiting** on `POST /login` (10 / 15 min) and `POST /users` (5 / hr) to slow brute-force and signup spam.
 - **NoSQL-injection guards** — credentials are type-checked so a payload like `{"username": {"$ne": null}}` can't reach the database query.
@@ -101,7 +102,7 @@ Both types share one feed that users can search, filter by tag, and rank by **Ho
 | Layer          | Technologies                                                                                                                                                                    |
 | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Frontend**   | React 18, Vite 6, TanStack Query v5, Zustand, React Context, React Router v7, React-Bootstrap / Bootstrap 5, Framer Motion, react-markdown + remark-gfm, react-hot-toast, Axios |
-| **Backend**    | Node.js, Express 4, MongoDB + Mongoose 8, JSON Web Token, bcrypt, open-graph-scraper, Helmet, express-rate-limit                                                                |
+| **Backend**    | Node.js, Express 4, MongoDB + Mongoose 8, JSON Web Token, bcrypt, cookie-parser, open-graph-scraper, Helmet, express-rate-limit                                                 |
 | **Testing**    | Jest + Supertest (API), Playwright (E2E)                                                                                                                                        |
 | **Deployment** | Render — a single web service where Express serves the built frontend                                                                                                           |
 
@@ -112,9 +113,9 @@ Both types share one feed that users can search, filter by tag, and rank by **Ho
 ```
 Bloglist/
 ├─ backend/                 Express API that also serves the built frontend
-│  ├─ controller/           route handlers: blogs, users, login
-│  ├─ models/               Mongoose schemas: Blog, User
-│  ├─ utils/                middleware, validation, config, rateLimit, linkPreview
+│  ├─ controller/           route handlers: blogs, users, login, auth
+│  ├─ models/               Mongoose schemas: Blog, User, RefreshToken
+│  ├─ utils/                middleware, validation, config, rateLimit, linkPreview, ssrf, tokens
 │  └─ tests/                Jest + Supertest API tests
 ├─ frontend/
 │  └─ src/
@@ -130,7 +131,7 @@ Bloglist/
 
 **State is split by ownership.** Server data (blogs, users, comments) lives in **TanStack Query**, which owns caching, refetching, and optimistic updates. Shared client state that must survive navigation (search text, active tag, feed sort) lives in **Zustand**. Auth and theme live in **React Context**. Provider order: `Router → QueryClient → Theme → Auth`.
 
-**The Axios instance owns auth plumbing.** A request interceptor injects the JWT; a response interceptor catches `401` and forces logout + redirect — so no component has to reason about token expiry.
+**The Axios instance owns auth plumbing.** Auth tokens live in `httpOnly` cookies the browser attaches automatically, so no component ever touches them. A response interceptor catches `401`, transparently calls `/auth/refresh` once (single-flight), retries the original request, and only forces a logout + redirect if the refresh itself fails.
 
 **Hybrid content without a migration.** Each blog carries `type: "link" | "article"` (default `"link"`). Articles were added by branching on `type`; existing documents stayed valid because `url` is only conditionally required (`required: () => this.type === "link"`).
 
@@ -189,8 +190,6 @@ Create `backend/.env` from `backend/.env.example`:
 | `PORT`             |     —     | API port (defaults to `3003`; `.env.example` uses `3001`)                                              |
 | `CORS_ORIGIN`      |     —     | Comma-separated allowed origins; only needed when the frontend runs on a different origin              |
 
-> `.env` is git-ignored — never commit real secrets.
-
 ---
 
 ## Scripts
@@ -217,21 +216,23 @@ Create `backend/.env` from `backend/.env.example`:
 
 ## API Reference
 
-All routes are prefixed with `/api`. Endpoints marked 🔒 require an `Authorization: Bearer <token>` header.
+All routes are prefixed with `/api`. Endpoints marked 🔒 require authentication — the `access_token` cookie set at login (an `Authorization: Bearer <token>` header is also accepted).
 
-| Method   | Endpoint                         | Description                                 |
-| :------- | :------------------------------- | :------------------------------------------ |
-| `GET`    | `/blogs`                         | List all blogs                              |
-| `GET`    | `/blogs/:id`                     | Get one blog with populated comment authors |
-| `POST`   | `/blogs`                         | 🔒 Create a link or article                 |
-| `PUT`    | `/blogs/:id`                     | 🔒 Update — owner only                      |
-| `DELETE` | `/blogs/:id`                     | 🔒 Delete — owner only                      |
-| `PUT`    | `/blogs/:id/like`                | 🔒 Toggle your like                         |
-| `POST`   | `/blogs/:id/comments`            | 🔒 Add a comment                            |
-| `DELETE` | `/blogs/:id/comments/:commentId` | 🔒 Delete a comment — author only           |
-| `GET`    | `/users`                         | List users with their blogs                 |
-| `POST`   | `/users`                         | Register a new account                      |
-| `POST`   | `/login`                         | Authenticate, returns a JWT                 |
+| Method   | Endpoint                         | Description                                        |
+| :------- | :------------------------------- | :------------------------------------------------- |
+| `GET`    | `/blogs`                         | List all blogs                                     |
+| `GET`    | `/blogs/:id`                     | Get one blog with populated comment authors        |
+| `POST`   | `/blogs`                         | 🔒 Create a link or article                        |
+| `PUT`    | `/blogs/:id`                     | 🔒 Update — owner only                             |
+| `DELETE` | `/blogs/:id`                     | 🔒 Delete — owner only                             |
+| `PUT`    | `/blogs/:id/like`                | 🔒 Toggle your like                                |
+| `POST`   | `/blogs/:id/comments`            | 🔒 Add a comment                                   |
+| `DELETE` | `/blogs/:id/comments/:commentId` | 🔒 Delete a comment — author only                  |
+| `GET`    | `/users`                         | List users with their blogs                        |
+| `POST`   | `/users`                         | Register a new account                             |
+| `POST`   | `/login`                         | Authenticate; sets httpOnly auth cookies           |
+| `POST`   | `/auth/refresh`                  | Rotate the refresh token, issue a new access token |
+| `POST`   | `/auth/logout`                   | Revoke the session and clear auth cookies          |
 
 ---
 
@@ -254,7 +255,7 @@ cd backend && npm run build:ui && npm run start:test   # terminal 1
 cd test && npm install && npx playwright install && npm test
 ```
 
-> **Status:** the API suite is green in CI. The end-to-end specs predate the current UI redesign and are being updated to match it — see the [roadmap](#roadmap).
+> **Status:** the API suite is green in CI. The end-to-end specs predate the current UI redesign and are being updated to match it.
 
 ---
 
