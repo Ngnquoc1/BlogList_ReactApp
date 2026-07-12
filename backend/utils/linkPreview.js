@@ -1,6 +1,9 @@
+const { assertSafeUrl } = require("./ssrf");
+
 const fetchLinkPreview = async (url) => {
   if (process.env.NODE_ENV === "test") return null;
   try {
+    await assertSafeUrl(url);
     const ogs = (await import("open-graph-scraper")).default;
     const { result } = await ogs({
       url,
