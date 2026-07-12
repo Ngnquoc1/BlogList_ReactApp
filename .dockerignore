@@ -1,0 +1,12 @@
+# Keep the build context small and secrets out of the image
+**/node_modules
+**/dist
+**/*.log
+backend/.env
+backend/.env.*
+.git
+.github
+.vscode
+test
+frontend/Cypress
+frontend/cypress

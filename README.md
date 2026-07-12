@@ -6,6 +6,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-online-2ea44f?style=flat)](https://bloglist-reactapp.onrender.com)
 [![CI](https://github.com/Ngnquoc1/BlogList_ReactApp/actions/workflows/ci.yml/badge.svg)](https://github.com/Ngnquoc1/BlogList_ReactApp/actions/workflows/ci.yml)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
@@ -104,7 +105,7 @@ Both types share one feed that users can search, filter by tag, and rank by **Ho
 | **Frontend**   | React 18, Vite 6, TanStack Query v5, Zustand, React Context, React Router v7, React-Bootstrap / Bootstrap 5, Framer Motion, react-markdown + remark-gfm, react-hot-toast, Axios |
 | **Backend**    | Node.js, Express 4, MongoDB + Mongoose 8, JSON Web Token, bcrypt, cookie-parser, open-graph-scraper, Helmet, express-rate-limit                                                 |
 | **Testing**    | Jest + Supertest (API), Playwright (E2E)                                                                                                                                        |
-| **Deployment** | Render — a single web service where Express serves the built frontend                                                                                                           |
+| **Deployment** | Render (single web service serving the built SPA); Docker multi-stage image + Compose for local                                                                                                           |
 
 ---
 
@@ -176,6 +177,20 @@ npm install
 npm run dev               # http://localhost:5173, proxies /api to the backend
 ```
 
+### Run with Docker
+
+[Docker](https://www.docker.com/products/docker-desktop/) can run the whole stack — the app plus MongoDB — with a single command:
+
+```bash
+docker compose up --build      # app on http://localhost:3001
+```
+
+Compose reads `SECRET` from your shell and falls back to an insecure dev default. To run **only** the database in a container (and the app on the host — handy for the test suite):
+
+```bash
+docker compose up -d mongo     # Mongo on localhost:27017
+```
+
 ---
 
 ## Environment Variables
@@ -240,7 +255,7 @@ All routes are prefixed with `/api`. Endpoints marked 🔒 require authenticatio
 
 The repository contains an API suite (Jest + Supertest) and an end-to-end suite (Playwright). Every push and pull request runs the API tests and a frontend lint + build through [GitHub Actions](.github/workflows/ci.yml).
 
-**API tests** run against an isolated database — the app refuses to start under `NODE_ENV=test` unless a distinct `TEST_MONGODB_URI` is set, so tests can never touch production data.
+**API tests** run against an isolated database — the app refuses to start under `NODE_ENV=test` unless a distinct `TEST_MONGODB_URI` is set, so tests can never touch production data. Spin up a throwaway database with `docker compose up -d mongo` and point `TEST_MONGODB_URI` at `mongodb://localhost:27017/bloglist-test`.
 
 ```bash
 cd backend
